@@ -1,19 +1,22 @@
 package spit.ecell.encrypto.ui.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.PatternMatcher;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
-import android.text.TextUtils;
+import android.transition.ChangeBounds;
 import android.transition.Scene;
+import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -23,16 +26,16 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.util.regex.Pattern;
-
 import spit.ecell.encrypto.R;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
-    private FirebaseAuth mAuth;
     Scene loginScene;
     Scene registerScene;
+    Transition transition = new ChangeBounds().setDuration(750);
     TextInputEditText emailView, passwordView, nameView, confirmPasswordView;
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
     private SharedPreferences prefs;
 
     @Override
@@ -41,16 +44,44 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
-        CardView card = findViewById(R.id.cardView);
+        ViewGroup root = findViewById(R.id.rootView);
         Button registerButton = findViewById(R.id.registerButton);
 
-        loginScene = Scene.getSceneForLayout(card, R.layout.card_login, this);
-        registerScene = Scene.getSceneForLayout(card, R.layout.card_register, this);
+        loginScene = Scene.getSceneForLayout(root, R.layout.card_login, this);
+        registerScene = Scene.getSceneForLayout(root, R.layout.card_register, this);
 
-        prefs = getSharedPreferences(Constants.PREFS,MODE_PRIVATE);
+        prefs = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
 
-        initLogin();
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        currentUser = mAuth.getCurrentUser();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Check if no view has focus:
+                View view = LoginActivity.this.getCurrentFocus();
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+                }
+                if (currentUser != null) {
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    finish();
+                } else {
+                    TransitionManager.go(loginScene, transition);
+                    initLogin();
+                }
+            }
+        }, 1000);
+    }
+
 
     public void initLogin() {
         emailView = findViewById(R.id.input_email);
@@ -68,7 +99,15 @@ public class LoginActivity extends AppCompatActivity {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TransitionManager.go(registerScene);
+                // Check if no view has focus:
+                View view = LoginActivity.this.getCurrentFocus();
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+                }
+                TransitionManager.go(registerScene, transition);
                 initRegister();
             }
         });
@@ -84,7 +123,15 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TransitionManager.go(loginScene);
+                // Check if no view has focus:
+                View view = LoginActivity.this.getCurrentFocus();
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+                }
+                TransitionManager.go(loginScene, transition);
                 initLogin();
             }
         });
@@ -123,6 +170,7 @@ public class LoginActivity extends AppCompatActivity {
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 if (user != null) {
                                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                    finish();
                                 }
                             } else {
                                 // If sign in fails, display a message to the user.
@@ -170,14 +218,22 @@ public class LoginActivity extends AppCompatActivity {
                                 Log.d(TAG, "createUserWithEmail:success");
 
                                 prefs.edit()
-                                        .putString(Constants.USER_NAME,nameView.getText().toString())
+                                        .putString(Constants.USER_NAME, nameView.getText().toString())
                                         .apply();
 
                                 Toast.makeText(LoginActivity.this,
                                         "Successfully registered. Please sign in",
                                         Toast.LENGTH_SHORT).show();
 
-                                TransitionManager.go(loginScene);
+                                // Check if no view has focus:
+                                View view = LoginActivity.this.getCurrentFocus();
+                                if (view != null) {
+                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    if (imm != null) {
+                                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                                    }
+                                }
+                                TransitionManager.go(loginScene, transition);
                                 initLogin();
                             } else {
                                 // If sign in fails, display a message to the user.

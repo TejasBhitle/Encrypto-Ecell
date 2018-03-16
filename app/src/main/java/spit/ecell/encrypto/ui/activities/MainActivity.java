@@ -2,11 +2,10 @@ package spit.ecell.encrypto.ui.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -50,12 +49,6 @@ public class MainActivity extends AppCompatActivity {
             initializeUser();
             prefs.edit().putBoolean(Constants.IS_FIRST_LAUNCH,false).apply();
         }
-
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
 
     }
 
