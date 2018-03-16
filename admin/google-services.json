@@ -1,0 +1,99 @@
+{
+  "project_info": {
+    "project_number": "208420607036",
+    "firebase_url": "https://encrypto-ecell.firebaseio.com",
+    "project_id": "encrypto-ecell",
+    "storage_bucket": "encrypto-ecell.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:208420607036:android:0d9840d9da5dd6ed",
+        "android_client_info": {
+          "package_name": "spit.ecell.encrypto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "208420607036-qjl08k80nufers1b6tgj8bagt8d25jjr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "spit.ecell.encrypto",
+            "certificate_hash": "e706782addec10a2adc6f647f80fa51ada2b8500"
+          }
+        },
+        {
+          "client_id": "208420607036-754dct7jg1jo8nqldgjatk8qdsgmp41j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCA66iLLf8J8zjTrrCVfGjnG4vdFJCbcYg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "208420607036-754dct7jg1jo8nqldgjatk8qdsgmp41j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:208420607036:android:a59d9ff0fe5e624a",
+        "android_client_info": {
+          "package_name": "spit.ecell.encrypto.admin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "208420607036-pmbru685tgr5a6gm8dtv82sd3go3mv58.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "spit.ecell.encrypto.admin",
+            "certificate_hash": "e706782addec10a2adc6f647f80fa51ada2b8500"
+          }
+        },
+        {
+          "client_id": "208420607036-754dct7jg1jo8nqldgjatk8qdsgmp41j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCA66iLLf8J8zjTrrCVfGjnG4vdFJCbcYg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "208420607036-754dct7jg1jo8nqldgjatk8qdsgmp41j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
