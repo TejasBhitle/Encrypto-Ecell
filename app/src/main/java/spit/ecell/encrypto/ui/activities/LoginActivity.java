@@ -1,5 +1,6 @@
 package spit.ecell.encrypto.ui.activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,21 +22,34 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import spit.ecell.encrypto.R;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
+    private static final String USERS = "users";
+
     Scene loginScene;
     Scene registerScene;
     Transition transition = new ChangeBounds().setDuration(750);
     TextInputEditText emailView, passwordView, nameView, confirmPasswordView;
+    ProgressDialog progressDialog;
+
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
+    private FirebaseFirestore db;
     private SharedPreferences prefs;
 
     @Override
@@ -44,8 +58,12 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+
         ViewGroup root = findViewById(R.id.rootView);
         Button registerButton = findViewById(R.id.registerButton);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getString(R.string.please_wait));
 
         loginScene = Scene.getSceneForLayout(root, R.layout.card_login, this);
         registerScene = Scene.getSceneForLayout(root, R.layout.card_register, this);
@@ -60,17 +78,18 @@ public class LoginActivity extends AppCompatActivity {
 
         currentUser = mAuth.getCurrentUser();
 
+        // Check if no view has focus:
+        View view = LoginActivity.this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                // Check if no view has focus:
-                View view = LoginActivity.this.getCurrentFocus();
-                if (view != null) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    if (imm != null) {
-                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                    }
-                }
                 if (currentUser != null) {
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
@@ -146,6 +165,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void attemptLogin() {
+        progressDialog.show();
         TextInputEditText errorView = null;
 
         if (passwordView.getText().toString().length() < 8) {
@@ -167,14 +187,30 @@ public class LoginActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "signInWithEmail:success");
-                                FirebaseUser user = mAuth.getCurrentUser();
-                                if (user != null) {
-                                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                    finish();
+                                currentUser = mAuth.getCurrentUser();
+                                if (currentUser != null) {
+                                    db.collection(USERS).document(currentUser.getUid()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                                            String username = (String) documentSnapshot.get(Constants.FIRESTORE_USER_NAME_KEY);
+                                            String email = currentUser.getEmail();
+                                            long balance = (Long) documentSnapshot.get(Constants.FIRESTORE_USER_BALANCE_KEY);
+                                            SharedPreferences.Editor editor = prefs.edit();
+                                            editor.putString(Constants.USER_NAME, username);
+                                            editor.putString(Constants.USER_EMAIL, email);
+                                            editor.putLong(Constants.FIRESTORE_USER_BALANCE_KEY, balance);
+                                            editor.apply();
+                                            Log.d(TAG, "Name: " + username + "\nEmail: " + email + "\nBalance: " + balance);
+                                            progressDialog.dismiss();
+                                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                            finish();
+                                        }
+                                    });
                                 }
                             } else {
                                 // If sign in fails, display a message to the user.
                                 Log.w(TAG, "signInWithEmail:failure", task.getException());
+                                progressDialog.dismiss();
                                 Toast.makeText(LoginActivity.this, "Authentication failed.",
                                         Toast.LENGTH_SHORT).show();
                             }
@@ -185,6 +221,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     public void attemptRegistration() {
+        progressDialog.show();
         TextInputEditText errorView = null;
 
         if (!passwordView.getText().toString().equals(confirmPasswordView.getText().toString())) {
@@ -217,27 +254,20 @@ public class LoginActivity extends AppCompatActivity {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "createUserWithEmail:success");
 
-                                prefs.edit()
-                                        .putString(Constants.USER_NAME, nameView.getText().toString())
-                                        .apply();
+                                String name = nameView.getText().toString().trim();
+                                initializeUser(name);
 
                                 Toast.makeText(LoginActivity.this,
                                         "Successfully registered. Please sign in",
                                         Toast.LENGTH_SHORT).show();
 
-                                // Check if no view has focus:
-                                View view = LoginActivity.this.getCurrentFocus();
-                                if (view != null) {
-                                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                    if (imm != null) {
-                                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                                    }
-                                }
+                                progressDialog.dismiss();
                                 TransitionManager.go(loginScene, transition);
                                 initLogin();
                             } else {
                                 // If sign in fails, display a message to the user.
                                 Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                progressDialog.dismiss();
                                 Toast.makeText(LoginActivity.this,
                                         "Authentication failed.",
                                         Toast.LENGTH_SHORT).show();
@@ -246,5 +276,31 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     });
         }
+    }
+
+    public void initializeUser(String name) {
+        currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            Log.e(TAG, "current user is null");
+            return;
+        }
+        String UID = currentUser.getUid();
+
+        Map<String, Object> data = new HashMap<>();
+        data.put(Constants.FIRESTORE_USER_BALANCE_KEY, 1000);
+        data.put(Constants.FIRESTORE_USER_NAME_KEY, name);
+        db.collection(USERS).document(UID).set(data)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "Successfully initialized user");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Failure in user initialization");
+                    }
+                });
     }
 }

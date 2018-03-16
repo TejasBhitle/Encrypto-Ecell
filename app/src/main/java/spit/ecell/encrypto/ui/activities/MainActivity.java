@@ -4,26 +4,26 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.view.MenuItem;
+import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import spit.ecell.encrypto.R;
+import spit.ecell.encrypto.ui.fragments.HistoryFragment;
+import spit.ecell.encrypto.ui.fragments.MarketFragment;
+import spit.ecell.encrypto.ui.fragments.ProfileFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MarketFragment.OnMarketFragmentInteractionListener, ProfileFragment.OnProfileFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
     private static final String USERS = "users";
-
+    BottomNavigationView bottomNavigationView;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private FirebaseFirestore db;
@@ -40,41 +40,75 @@ public class MainActivity extends AppCompatActivity {
         if (currentUser == null) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
+            return;
         }
-
         db = FirebaseFirestore.getInstance();
 
         prefs = getSharedPreferences(Constants.PREFS,MODE_PRIVATE);
-        if(prefs.getBoolean(Constants.IS_FIRST_LAUNCH,true)){
-            initializeUser();
-            prefs.edit().putBoolean(Constants.IS_FIRST_LAUNCH,false).apply();
+
+        bottomNavigationView = findViewById(R.id.bottom_nav);
+        /*
+        if(prefs.getBoolean(Constants.IS_FIRST_LAUNCH,true)) {
+            // Do something on first launch
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean(Constants.IS_FIRST_LAUNCH, false).apply();
         }
+        */
+        final FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .replace(R.id.frameLayout, new MarketFragment())
+                .commit();
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.bottom_nav_home:
+                        setTitle(R.string.app_name);
+                        fm.beginTransaction()
+                                .replace(R.id.frameLayout, new MarketFragment())
+                                .commit();
+                        break;
+                    case R.id.bottom_nav_history:
+                        setTitle(R.string.transaction_history);
+                        fm.beginTransaction()
+                                .replace(R.id.frameLayout, new HistoryFragment())
+                                .commit();
+                        break;
+                    case R.id.bottom_nav_profile:
+                        setTitle(R.string.profile);
+                        fm.beginTransaction()
+                                .replace(R.id.frameLayout, new ProfileFragment())
+                                .commit();
+                        break;
+                }
+                return true;
+            }
+        });
 
     }
 
-    public void initializeUser(){
-        if(currentUser == null){
-            Log.e(TAG,"current user is null");
-            return;
-        }
-        String UID = currentUser.getUid();
-        String name = prefs.getString(Constants.USER_NAME,"");
+    @Override
+    public void onLogout() {
+        prefs.edit().clear().apply();
+        mAuth.signOut();
+        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        finish();
+    }
 
-        Map<String,Object> data =  new HashMap<>();
-        data.put("wallet-balance",1000);
-        data.put("name",name);
-        db.collection(USERS).document(UID).set(data)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Log.d(TAG,"Success");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG,"Failure");
-                    }
-                });
+
+    @Override
+    public void onListItemClicked(String currencyId) {
+        Toast.makeText(this, "Item clicked: " + currencyId, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onBuyOrder(String currencyId) {
+        Toast.makeText(this, "Show buy order dialog for: " + currencyId, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onSellOrder(String currencyId) {
+        Toast.makeText(this, "Show sell order dialog for: " + currencyId, Toast.LENGTH_SHORT).show();
     }
 }

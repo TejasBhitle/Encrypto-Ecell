@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Encrypto</string>
+    <string name="app_description">A virtual stock market like event based on cryptocurrency, organized at the E-Summit held at Sardar Patel Institute of Technology, Mumbai</string>
     <string name="icon">Icon</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -14,4 +15,17 @@
     <string name="password_mismatch_prompt">Passwords do not match</string>
     <string name="confirm_password">Confirm password</string>
     <string name="invalid_name">Invalid name</string>
+    <string name="home">Home</string>
+    <string name="transactions">Transactions</string>
+    <string name="profile">Profile</string>
+
+    <string name="logout">Log out</string>
+    <string name="about">About</string>
+    <string name="assets">Assets</string>
+    <string name="username">Username</string>
+    <string name="please_wait">Please wait…</string>
+    <string name="balance">Balance</string>
+    <string name="transaction_history">Transaction History</string>
+    <string name="buy">Buy</string>
+    <string name="sell">Sell</string>
 </resources>
