@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Encrypto</string>
+    <string name="icon">Icon</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="name">Name</string>
+    <string name="password_length_prompt">Password must be at least 8 characters long</string>
+    <string name="invalid_email_prompt">Please input a valid email address</string>
+    <string name="or">OR</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="input_name_prompt">Please input yor name to be show on leaderboards</string>
+    <string name="password_mismatch_prompt">Passwords do not match</string>
+    <string name="confirm_password">Confirm password</string>
 </resources>
