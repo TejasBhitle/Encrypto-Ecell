@@ -1,6 +1,7 @@
 package spit.ecell.encrypto.ui.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.PatternMatcher;
 import android.support.annotation.NonNull;
@@ -32,6 +33,7 @@ public class LoginActivity extends AppCompatActivity {
     Scene loginScene;
     Scene registerScene;
     TextInputEditText emailView, passwordView, nameView, confirmPasswordView;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,8 @@ public class LoginActivity extends AppCompatActivity {
 
         loginScene = Scene.getSceneForLayout(card, R.layout.card_login, this);
         registerScene = Scene.getSceneForLayout(card, R.layout.card_register, this);
+
+        prefs = getSharedPreferences(Constants.PREFS,MODE_PRIVATE);
 
         initLogin();
     }
@@ -164,16 +168,22 @@ public class LoginActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "createUserWithEmail:success");
-                                FirebaseUser user = mAuth.getCurrentUser();
-                                // TODO: Push user data to new node
-                                Toast.makeText(LoginActivity.this, "Successfully registered. Please sign in",
+
+                                prefs.edit()
+                                        .putString(Constants.USER_NAME,nameView.getText().toString())
+                                        .apply();
+
+                                Toast.makeText(LoginActivity.this,
+                                        "Successfully registered. Please sign in",
                                         Toast.LENGTH_SHORT).show();
+
                                 TransitionManager.go(loginScene);
                                 initLogin();
                             } else {
                                 // If sign in fails, display a message to the user.
                                 Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                Toast.makeText(LoginActivity.this,
+                                        "Authentication failed.",
                                         Toast.LENGTH_SHORT).show();
                             }
 

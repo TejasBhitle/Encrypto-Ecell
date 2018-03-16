@@ -13,4 +13,5 @@
     <string name="input_name_prompt">Please input yor name to be show on leaderboards</string>
     <string name="password_mismatch_prompt">Passwords do not match</string>
     <string name="confirm_password">Confirm password</string>
+    <string name="invalid_name">Invalid name</string>
 </resources>
