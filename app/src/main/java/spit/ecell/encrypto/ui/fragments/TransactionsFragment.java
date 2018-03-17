@@ -4,13 +4,14 @@ package spit.ecell.encrypto.ui.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -30,19 +31,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import spit.ecell.encrypto.Constants;
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Transaction;
-import spit.ecell.encrypto.ui.activities.Constants;
 import spit.ecell.encrypto.ui.adapters.TransactionAdapter;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class TransactionsFragment extends Fragment {
-
-    private static final String TAG = "MarketFragment";
+    private static final String TAG = "TransactionFragment";
     private RecyclerView recyclerView;
-    private ProgressBar progressBar;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private TextView blankText;
 
     public TransactionsFragment() {
         // Required empty public constructor
@@ -54,7 +55,16 @@ public class TransactionsFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_history, container, false);
 
         recyclerView = view.findViewById(R.id.transactions_recycler_view);
-        progressBar = view.findViewById(R.id.progressBar);
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+        blankText = view.findViewById(R.id.blankText);
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getTransactions();
+            }
+        });
+
         getTransactions();
 
         view.findViewById(R.id.test).setOnClickListener(new View.OnClickListener() {
@@ -69,15 +79,15 @@ public class TransactionsFragment extends Fragment {
 
 
     public void updateUI(ArrayList<Transaction> transactions){
-        progressBar.setVisibility(View.GONE);
         Log.d(TAG,"updating UI ....");
         if(transactions.size() != 0) {
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             recyclerView.setAdapter(new TransactionAdapter(transactions, getContext()));
+            blankText.setVisibility(View.GONE);
+        } else {
+            blankText.setVisibility(View.VISIBLE);
         }
-        else{
-            Toast.makeText(getContext(),"No transactions",Toast.LENGTH_SHORT).show();
-        }
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     public void getTransactions(){
@@ -89,7 +99,7 @@ public class TransactionsFragment extends Fragment {
             Log.d(TAG,"user is null");
             return;
         }
-        progressBar.setVisibility(View.VISIBLE);
+        swipeRefreshLayout.setRefreshing(true);
         db.collection(Constants.FIRESTORE_USERS_KEY)
                 .document(user.getUid())
                 .collection(Constants.FIRESTORE_TRANSACTIONS_KEY)
@@ -120,7 +130,7 @@ public class TransactionsFragment extends Fragment {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-
+                        Toast.makeText(getActivity(), "Failed to get transaction history", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

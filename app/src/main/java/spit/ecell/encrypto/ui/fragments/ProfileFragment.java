@@ -14,8 +14,8 @@ import android.widget.TextView;
 import com.mikepenz.aboutlibraries.Libs;
 import com.mikepenz.aboutlibraries.LibsBuilder;
 
+import spit.ecell.encrypto.Constants;
 import spit.ecell.encrypto.R;
-import spit.ecell.encrypto.ui.activities.Constants;
 
 public class ProfileFragment extends Fragment {
     SharedPreferences userPrefs;

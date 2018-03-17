@@ -1,4 +1,4 @@
-package spit.ecell.encrypto.ui.activities;
+package spit.ecell.encrypto;
 
 /**
  * Created by tejas on 16/3/18.
@@ -15,4 +15,5 @@ public class Constants {
     public static final String FIRESTORE_USER_BALANCE_KEY = "wallet-balance";
     public static final String FIRESTORE_USERS_KEY = "users";
     public static final String FIRESTORE_TRANSACTIONS_KEY = "transactions";
+    public static final String FIRESTORE_CURRENCIES_KEY = "currencies";
 }

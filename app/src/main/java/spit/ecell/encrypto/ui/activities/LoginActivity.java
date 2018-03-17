@@ -35,6 +35,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import java.util.HashMap;
 import java.util.Map;
 
+import spit.ecell.encrypto.Constants;
 import spit.ecell.encrypto.R;
 
 public class LoginActivity extends AppCompatActivity {

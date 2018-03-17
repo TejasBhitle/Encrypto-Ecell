@@ -19,7 +19,6 @@ import spit.ecell.encrypto.models.Transaction;
  */
 
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.ViewHolder> {
-
     private ArrayList<Transaction> transactions;
     private Context context;
 
@@ -38,7 +37,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Transaction data = transactions.get(position);
-        String text = ""+(data.isBought()?"Bought ":"Sold ")
+        String text = (data.isBought() ? "Bought " : "Sold ")
                 +(int)data.getQuantity()+" "
                 +data.getName()+" for $"+data.getValue();
         holder.detailsTextView.setText(text);

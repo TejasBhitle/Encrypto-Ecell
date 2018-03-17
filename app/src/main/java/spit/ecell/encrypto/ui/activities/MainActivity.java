@@ -8,18 +8,18 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import spit.ecell.encrypto.Constants;
 import spit.ecell.encrypto.R;
-import spit.ecell.encrypto.ui.fragments.TransactionsFragment;
 import spit.ecell.encrypto.ui.fragments.MarketFragment;
 import spit.ecell.encrypto.ui.fragments.ProfileFragment;
+import spit.ecell.encrypto.ui.fragments.TransactionsFragment;
 
-public class MainActivity extends AppCompatActivity implements MarketFragment.OnMarketFragmentInteractionListener, ProfileFragment.OnProfileFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements ProfileFragment.OnProfileFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
     BottomNavigationView bottomNavigationView;
@@ -95,19 +95,4 @@ public class MainActivity extends AppCompatActivity implements MarketFragment.On
         finish();
     }
 
-
-    @Override
-    public void onListItemClicked(String currencyId) {
-        Toast.makeText(this, "Item clicked: " + currencyId, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onBuyOrder(String currencyId) {
-        Toast.makeText(this, "Show buy order dialog for: " + currencyId, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onSellOrder(String currencyId) {
-        Toast.makeText(this, "Show sell order dialog for: " + currencyId, Toast.LENGTH_SHORT).show();
-    }
 }

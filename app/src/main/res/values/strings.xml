@@ -28,4 +28,9 @@
     <string name="transaction_history">Transaction History</string>
     <string name="buy">Buy</string>
     <string name="sell">Sell</string>
+    <string name="no_transactions">No transactions to show</string>
+    <string name="no_currencies">No currencies to show</string>
+    <string name="owned_label">Owned:</string>
+    <string name="dollar_symbol">$</string>
+    <string name="variation_default">+0.00%</string>
 </resources>
