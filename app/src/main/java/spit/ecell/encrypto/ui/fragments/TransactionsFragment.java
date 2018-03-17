@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -41,6 +42,7 @@ public class TransactionsFragment extends Fragment {
 
     private static final String TAG = "MarketFragment";
     private RecyclerView recyclerView;
+    private ProgressBar progressBar;
 
     public TransactionsFragment() {
         // Required empty public constructor
@@ -52,6 +54,7 @@ public class TransactionsFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_history, container, false);
 
         recyclerView = view.findViewById(R.id.transactions_recycler_view);
+        progressBar = view.findViewById(R.id.progressBar);
         getTransactions();
 
         view.findViewById(R.id.test).setOnClickListener(new View.OnClickListener() {
@@ -66,6 +69,7 @@ public class TransactionsFragment extends Fragment {
 
 
     public void updateUI(ArrayList<Transaction> transactions){
+        progressBar.setVisibility(View.GONE);
         Log.d(TAG,"updating UI ....");
         if(transactions.size() != 0) {
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -85,6 +89,7 @@ public class TransactionsFragment extends Fragment {
             Log.d(TAG,"user is null");
             return;
         }
+        progressBar.setVisibility(View.VISIBLE);
         db.collection(Constants.FIRESTORE_USERS_KEY)
                 .document(user.getUid())
                 .collection(Constants.FIRESTORE_TRANSACTIONS_KEY)
