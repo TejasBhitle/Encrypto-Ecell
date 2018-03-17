@@ -14,7 +14,8 @@
 
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -54,38 +55,6 @@
                 </LinearLayout>
 
             </android.support.v7.widget.CardView>
-
-            <TextView
-                android:id="@+id/about_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:drawablePadding="16dp"
-                android:drawableStart="@drawable/ic_about_grey_24dp"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:minHeight="64dp"
-                android:padding="16dp"
-                android:text="@string/about"
-                android:textAppearance="@style/TextAppearance.AppCompat.Widget.Button"
-                android:textColor="#ff666666" />
-
-            <TextView
-                android:id="@+id/logout_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:drawablePadding="16dp"
-                android:drawableStart="@drawable/ic_logout_red_24dp"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:minHeight="64dp"
-                android:padding="16dp"
-                android:text="@string/logout"
-                android:textAppearance="@style/TextAppearance.AppCompat.Widget.Button"
-                android:textColor="@color/red" />
 
         </LinearLayout>
     </ScrollView>

@@ -7,9 +7,24 @@
     <item
         android:id="@+id/bottom_nav_history"
         android:icon="@drawable/ic_history_24dp"
-        android:title="@string/transactions" />
+        android:title="@string/transaction_history" />
+    <item
+        android:id="@+id/bottom_nav_leaderboards"
+        android:icon="@drawable/ic_list_numbered_24dp"
+        android:title="@string/leaderboard" />
     <item
         android:id="@+id/bottom_nav_profile"
         android:icon="@drawable/ic_account_circle_24dp"
-        android:title="@string/profile" />
+        android:title="@string/portfolio" />
+
+    <group android:id="@+id/options">
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_about_grey_24dp"
+            android:title="@string/about" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_logout_red_24dp"
+            android:title="@string/logout" />
+    </group>
 </menu>

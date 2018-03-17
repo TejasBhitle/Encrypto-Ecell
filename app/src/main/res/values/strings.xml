@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Encrypto</string>
     <string name="app_description">A virtual stock market like event based on cryptocurrency, organized at the E-Summit held at Sardar Patel Institute of Technology, Mumbai</string>
+    <string name="navigation_drawer_open">Navigation drawer open</string>
+    <string name="navigation_drawer_close">Navigation drawer close</string>
+
     <string name="icon">Icon</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -15,9 +18,13 @@
     <string name="password_mismatch_prompt">Passwords do not match</string>
     <string name="confirm_password">Confirm password</string>
     <string name="invalid_name">Invalid name</string>
+
     <string name="home">Home</string>
     <string name="transactions">Transactions</string>
+    <string name="transaction_history">Transaction History</string>
     <string name="profile">Profile</string>
+    <string name="leaderboard">Leaderboard</string>
+    <string name="portfolio">Portfolio</string>
 
     <string name="logout">Log out</string>
     <string name="about">About</string>
@@ -25,7 +32,6 @@
     <string name="username">Username</string>
     <string name="please_wait">Please wait…</string>
     <string name="balance">Balance</string>
-    <string name="transaction_history">Transaction History</string>
     <string name="buy">Buy</string>
     <string name="sell">Sell</string>
     <string name="no_transactions">No transactions to show</string>
@@ -33,4 +39,12 @@
     <string name="owned_label">Owned:</string>
     <string name="dollar_symbol">$</string>
     <string name="variation_default">+0.00%</string>
+    <string name="notices">Notices</string>
+    <string name="attribution_text">Various openly available libraries were used in the making of this app. Attributions for them can be seen by clicking the button below</string>
+    <string name="third_party_libs">Third party attributions</string>
+    <string name="developers">Developers</string>
+    <string name="dev_desc">Developed by Tejas Bhitle and Samriddha Basu</string>
+    <string name="package_name">Package name:\ </string>
+    <string name="version_name">Version:\ </string>
+    <string name="version_code">Version Code:\ </string>
 </resources>
