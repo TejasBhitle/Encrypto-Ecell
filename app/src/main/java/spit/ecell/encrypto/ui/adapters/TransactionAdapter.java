@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import spit.ecell.encrypto.R;
-import spit.ecell.encrypto.ui.models.Transaction;
+import spit.ecell.encrypto.models.Transaction;
 
 /**
  * Created by tejas on 17/3/18.
@@ -26,15 +26,6 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     public TransactionAdapter(ArrayList<Transaction> transactions, Context context) {
         this.transactions = transactions;
         this.context = context;
-    }
-
-    class ViewHolder extends RecyclerView.ViewHolder{
-        TextView detailsTextView,timestampTextView;
-        ViewHolder(View view){
-            super(view);
-            timestampTextView = view.findViewById(R.id.timestampTextView);
-            detailsTextView = view.findViewById(R.id.detailsTextView);
-        }
     }
 
     @NonNull
@@ -60,5 +51,15 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public int getItemCount() {
         return transactions.size();
+    }
+
+    class ViewHolder extends RecyclerView.ViewHolder {
+        TextView detailsTextView, timestampTextView;
+
+        ViewHolder(View view) {
+            super(view);
+            timestampTextView = view.findViewById(R.id.timestampTextView);
+            detailsTextView = view.findViewById(R.id.detailsTextView);
+        }
     }
 }

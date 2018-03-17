@@ -1,4 +1,4 @@
-package spit.ecell.encrypto.ui.models;
+package spit.ecell.encrypto.models;
 
 import java.util.Date;
 

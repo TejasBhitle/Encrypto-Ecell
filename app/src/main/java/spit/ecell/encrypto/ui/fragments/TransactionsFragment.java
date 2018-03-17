@@ -31,9 +31,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import spit.ecell.encrypto.R;
+import spit.ecell.encrypto.models.Transaction;
 import spit.ecell.encrypto.ui.activities.Constants;
 import spit.ecell.encrypto.ui.adapters.TransactionAdapter;
-import spit.ecell.encrypto.ui.models.Transaction;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -148,12 +148,15 @@ public class TransactionsFragment extends Fragment {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         Log.e(TAG,"transaction added");
+                        Toast.makeText(getActivity(), "Transaction created", Toast.LENGTH_SHORT).show();
+                        getTransactions();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.e(TAG,"transaction adding failed");
+                        Toast.makeText(getActivity(), "Failed to create transaction", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
