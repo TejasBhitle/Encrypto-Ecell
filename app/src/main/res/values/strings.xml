@@ -47,4 +47,8 @@
     <string name="package_name">Package name:\ </string>
     <string name="version_name">Version:\ </string>
     <string name="version_code">Version Code:\ </string>
+    <string name="symbol">Symbol:\ </string>
+    <string name="value">Value:\ </string>
+    <string name="variation">Variation</string>
+    <string name="variation_over_time">Price variation over time</string>
 </resources>

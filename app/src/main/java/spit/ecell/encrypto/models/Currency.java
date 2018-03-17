@@ -1,10 +1,24 @@
 package spit.ecell.encrypto.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Samriddha on 17-03-2018.
  */
 
-public class Currency {
+public class Currency implements Parcelable {
+    public static final Creator<Currency> CREATOR = new Creator<Currency>() {
+        @Override
+        public Currency createFromParcel(Parcel in) {
+            return new Currency(in);
+        }
+
+        @Override
+        public Currency[] newArray(int size) {
+            return new Currency[size];
+        }
+    };
     String id, symbol, name, desc;
     double currentValue, variation, factor, circulation;
     int owned;
@@ -19,6 +33,31 @@ public class Currency {
         this.owned = owned;
         this.factor = factor;
         this.circulation = circulation;
+    }
+
+    protected Currency(Parcel in) {
+        id = in.readString();
+        symbol = in.readString();
+        name = in.readString();
+        desc = in.readString();
+        currentValue = in.readDouble();
+        variation = in.readDouble();
+        factor = in.readDouble();
+        circulation = in.readDouble();
+        owned = in.readInt();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(symbol);
+        dest.writeString(name);
+        dest.writeString(desc);
+        dest.writeDouble(currentValue);
+        dest.writeDouble(variation);
+        dest.writeInt(owned);
+        dest.writeDouble(factor);
+        dest.writeDouble(circulation);
     }
 
     public String getId() {
@@ -92,4 +131,10 @@ public class Currency {
     public void setCirculation(double circulation) {
         this.circulation = circulation;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
 }

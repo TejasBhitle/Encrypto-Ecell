@@ -30,10 +30,12 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:11.8.0'
     implementation 'com.google.firebase:firebase-firestore:11.8.0'
 
+    implementation 'com.github.lecho:hellocharts-library:1.5.8'
     implementation('com.mikepenz:aboutlibraries:6.0.1@aar') {
         transitive = true
     }
 }
+
 
 
 apply plugin: 'com.google.gms.google-services'

@@ -24,7 +24,11 @@
         <activity
             android:name=".ui.activities.AboutActivity"
             android:label="@string/about"
+            android:parentActivityName=".ui.activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.activities.CurrencyDetailActivity"
+            android:parentActivityName=".ui.activities.MainActivity" />
     </application>
 
 </manifest>
