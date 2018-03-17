@@ -10,6 +10,7 @@
         android:minHeight="64dp">
 
         <TextView
+            android:id="@+id/detailsTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
@@ -17,6 +18,7 @@
             android:text="Bought 5 BTC for $250" />
 
         <TextView
+            android:id="@+id/timestampTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"

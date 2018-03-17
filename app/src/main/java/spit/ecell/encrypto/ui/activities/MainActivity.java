@@ -15,14 +15,13 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import spit.ecell.encrypto.R;
-import spit.ecell.encrypto.ui.fragments.HistoryFragment;
+import spit.ecell.encrypto.ui.fragments.TransactionsFragment;
 import spit.ecell.encrypto.ui.fragments.MarketFragment;
 import spit.ecell.encrypto.ui.fragments.ProfileFragment;
 
 public class MainActivity extends AppCompatActivity implements MarketFragment.OnMarketFragmentInteractionListener, ProfileFragment.OnProfileFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
-    private static final String USERS = "users";
     BottomNavigationView bottomNavigationView;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
@@ -72,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements MarketFragment.On
                     case R.id.bottom_nav_history:
                         setTitle(R.string.transaction_history);
                         fm.beginTransaction()
-                                .replace(R.id.frameLayout, new HistoryFragment())
+                                .replace(R.id.frameLayout, new TransactionsFragment())
                                 .commit();
                         break;
                     case R.id.bottom_nav_profile:

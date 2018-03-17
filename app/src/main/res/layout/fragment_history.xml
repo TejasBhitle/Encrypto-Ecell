@@ -2,26 +2,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="spit.ecell.encrypto.ui.fragments.HistoryFragment">
+    tools:context="spit.ecell.encrypto.ui.fragments.TransactionsFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <include layout="@layout/list_item_history" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/transactions_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
-        <include layout="@layout/list_item_history" />
-
-        <include layout="@layout/list_item_history" />
-
-        <include layout="@layout/list_item_history" />
-
-        <include layout="@layout/list_item_history" />
-
-        <include layout="@layout/list_item_history" />
-
-        <include layout="@layout/list_item_history" />
+        <!--TODO: Delete this-->
+        <Button
+            android:id="@+id/test"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Create (DEBUG , delete later)"/>
 
     </LinearLayout>
 

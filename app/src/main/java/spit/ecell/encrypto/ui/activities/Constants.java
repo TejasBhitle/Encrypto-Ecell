@@ -13,4 +13,6 @@ public class Constants {
 
     public static final String FIRESTORE_USER_NAME_KEY = "name";
     public static final String FIRESTORE_USER_BALANCE_KEY = "wallet-balance";
+    public static final String FIRESTORE_USERS_KEY = "users";
+    public static final String FIRESTORE_TRANSACTIONS_KEY = "transactions";
 }
