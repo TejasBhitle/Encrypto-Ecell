@@ -12,13 +12,20 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.firestore.ListenerRegistration;
+
 import spit.ecell.encrypto.Constants;
+import spit.ecell.encrypto.FireStoreUtil;
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Currency;
 
 public class CurrencyDetailActivity extends AppCompatActivity {
     Currency currency;
     SharedPreferences preferences;
+    ListenerRegistration currencyListener;
+    FireStoreUtil fireStoreUtil;
+
+    TextView descriptionView,symbol,variation,value;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,12 +34,10 @@ public class CurrencyDetailActivity extends AppCompatActivity {
 
         preferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
 
-        TextView descriptionView = findViewById(R.id.description);
-        TextView symbol = findViewById(R.id.symbol);
-        TextView variation = findViewById(R.id.variation);
-        TextView value = findViewById(R.id.value);
-        Button buyButton = findViewById(R.id.buyButton);
-        Button sellButton = findViewById(R.id.sellButton);
+        descriptionView = findViewById(R.id.description);
+        symbol = findViewById(R.id.symbol);
+        variation = findViewById(R.id.variation);
+        value = findViewById(R.id.value);
 
         Bundle extras = getIntent().getExtras();
 
@@ -43,6 +48,40 @@ public class CurrencyDetailActivity extends AppCompatActivity {
         }
 
         currency = extras.getParcelable(Constants.FIRESTORE_CURRENCIES_KEY);
+
+
+        findViewById(R.id.buyButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBuyButtonPressed();
+            }
+        });
+
+        findViewById(R.id.sellButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onSellButtonPressed();
+            }
+        });
+
+        fireStoreUtil = new FireStoreUtil(this);
+        currencyListener = fireStoreUtil.getCurrencyRealTimeById(
+                currency.getId(),
+                new FireStoreUtil.FireStoreUtilCallbacks() {
+                    @Override
+                    public void onSuccess(Object object) {
+                        updateUI((Currency)object);
+                    }
+
+                    @Override
+                    public void onFailure(Object object) {
+
+                    }
+                }
+        );
+    }
+
+    private void updateUI(Currency currency){
         setTitle(currency.getName());
         descriptionView.setText(currency.getDesc());
         symbol.setText(currency.getSymbol());
@@ -53,21 +92,6 @@ public class CurrencyDetailActivity extends AppCompatActivity {
             variation.setText(currency.getVariation() + "%");
             variation.setBackgroundResource(R.drawable.border_rounded_red);
         }
-
-        buyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBuyButtonPressed();
-            }
-        });
-
-        sellButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onSellButtonPressed();
-            }
-        });
-
     }
 
     private void onBuyButtonPressed(){
@@ -138,5 +162,12 @@ public class CurrencyDetailActivity extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(currencyListener != null)
+            currencyListener.remove();
+        super.onDestroy();
     }
 }

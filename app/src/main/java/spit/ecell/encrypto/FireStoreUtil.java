@@ -105,7 +105,7 @@ public class FireStoreUtil {
 
         CollectionReference collectionRef = db.collection(Constants.FIRESTORE_CURRENCIES_KEY);
 
-        ListenerRegistration registration = collectionRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        return collectionRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot snapshot, FirebaseFirestoreException e) {
                 if (e != null) {
@@ -135,7 +135,34 @@ public class FireStoreUtil {
                     callbacks.onSuccess(currencies);
             }
         });
-        return registration;
+    }
+
+    public ListenerRegistration getCurrencyRealTimeById(String id,
+                                                        final FireStoreUtilCallbacks callbacks){
+
+        final SharedPreferences prefs = context.getSharedPreferences(Constants.PREFS, Context.MODE_PRIVATE);
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference currencyRef = db.collection(Constants.FIRESTORE_CURRENCIES_KEY).document(id);
+
+        return currencyRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(DocumentSnapshot document, FirebaseFirestoreException e) {
+                String id = document.getId();
+                Map<String, Object> object = document.getData();
+                String symbol = (String) object.get("symbol");
+                String desc = (String) object.get("desc");
+                String name = (String) object.get("name");
+                Double value = Double.parseDouble(object.get("value-now").toString());
+                Double variation = Double.parseDouble(object.get("variation").toString());
+                Double circulation = Double.parseDouble(object.get("circulation").toString());
+                Double factor = Double.parseDouble(object.get("variation-factor").toString());
+                Integer owned = prefs.getInt("OWNED_" + symbol, 0);
+                Currency currency = new Currency(id, symbol, name, desc, value, variation, owned, factor, circulation);
+                if(callbacks != null){
+                    callbacks.onSuccess(currency);
+                }
+            }
+        });
     }
 }
 
