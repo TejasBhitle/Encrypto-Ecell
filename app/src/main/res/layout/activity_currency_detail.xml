@@ -90,6 +90,7 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="8dp"
                             android:background="@drawable/border_rounded_green"
+                            android:textColor="#fff"
                             tools:text="+0.00%" />
 
                     </LinearLayout>

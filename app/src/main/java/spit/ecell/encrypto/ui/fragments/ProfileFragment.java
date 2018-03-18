@@ -35,7 +35,7 @@ public class ProfileFragment extends Fragment {
         String full_name = userPrefs.getString(Constants.USER_NAME, getString(R.string.username)).trim();
         name.setText(full_name);
         email.setText(userPrefs.getString(Constants.USER_EMAIL, getString(R.string.email)));
-        balance.setText(getString(R.string.balance) + ": " + userPrefs.getLong(Constants.FIRESTORE_USER_BALANCE_KEY, 0));
+        balance.setText(getString(R.string.balance) + ": " + userPrefs.getFloat(Constants.FIRESTORE_USER_BALANCE_KEY, 0));
 
         return view;
     }

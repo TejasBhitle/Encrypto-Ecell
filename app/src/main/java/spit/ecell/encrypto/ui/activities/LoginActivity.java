@@ -180,6 +180,7 @@ public class LoginActivity extends AppCompatActivity {
 
         if (errorView != null) {
             errorView.requestFocus();
+            progressDialog.dismiss();
         } else {
             mAuth.signInWithEmailAndPassword(emailView.getText().toString().trim(), passwordView.getText().toString())
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -195,11 +196,11 @@ public class LoginActivity extends AppCompatActivity {
                                         public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
                                             String username = (String) documentSnapshot.get(Constants.FIRESTORE_USER_NAME_KEY);
                                             String email = currentUser.getEmail();
-                                            long balance = (Long) documentSnapshot.get(Constants.FIRESTORE_USER_BALANCE_KEY);
+                                            Float balance = Float.parseFloat(documentSnapshot.get(Constants.FIRESTORE_USER_BALANCE_KEY).toString());
                                             SharedPreferences.Editor editor = prefs.edit();
                                             editor.putString(Constants.USER_NAME, username);
                                             editor.putString(Constants.USER_EMAIL, email);
-                                            editor.putLong(Constants.FIRESTORE_USER_BALANCE_KEY, balance);
+                                            editor.putFloat(Constants.FIRESTORE_USER_BALANCE_KEY, balance);
                                             editor.apply();
                                             Log.d(TAG, "Name: " + username + "\nEmail: " + email + "\nBalance: " + balance);
                                             progressDialog.dismiss();
@@ -246,6 +247,7 @@ public class LoginActivity extends AppCompatActivity {
 
         if (errorView != null) {
             errorView.requestFocus();
+            progressDialog.dismiss();
         } else {
             mAuth.createUserWithEmailAndPassword(emailView.getText().toString().trim(), passwordView.getText().toString())
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -288,7 +290,7 @@ public class LoginActivity extends AppCompatActivity {
         String UID = currentUser.getUid();
 
         Map<String, Object> data = new HashMap<>();
-        data.put(Constants.FIRESTORE_USER_BALANCE_KEY, 1000);
+        data.put(Constants.FIRESTORE_USER_BALANCE_KEY, 10000);
         data.put(Constants.FIRESTORE_USER_NAME_KEY, name);
         db.collection(USERS).document(UID).set(data)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
