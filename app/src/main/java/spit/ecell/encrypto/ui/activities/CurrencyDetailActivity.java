@@ -19,9 +19,10 @@ import spit.ecell.encrypto.util.FireStoreUtils;
 public class CurrencyDetailActivity extends AppCompatActivity {
     private Currency currency;
     private SharedPreferences preferences;
-    private ListenerRegistration currencyListener;
+    private ListenerRegistration currencyListener, ownedCurrencyQuantityListener;
+    private int ownedCurrencyQuantity = 0;
 
-    private TextView descriptionView, symbol, variation, value;
+    private TextView descriptionView, symbol, variation, value, owned;
 
     private BuySellBottomSheetFragment buySellBottomSheetFragment;
 
@@ -36,6 +37,7 @@ public class CurrencyDetailActivity extends AppCompatActivity {
         symbol = findViewById(R.id.symbol);
         variation = findViewById(R.id.variation);
         value = findViewById(R.id.value);
+        owned = findViewById(R.id.owned);
 
         Bundle extras = getIntent().getExtras();
 
@@ -68,7 +70,7 @@ public class CurrencyDetailActivity extends AppCompatActivity {
                 new FireStoreUtils.FireStoreUtilCallbacks() {
                     @Override
                     public void onSuccess(Object object) {
-                        updateUI((Currency) object);
+                        updateUI((Currency) object, ownedCurrencyQuantity);
                     }
 
                     @Override
@@ -77,13 +79,27 @@ public class CurrencyDetailActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        ownedCurrencyQuantityListener = FireStoreUtils.getOwnedCurrencyQuantityRealtime(currency.getId(), new FireStoreUtils.FireStoreUtilCallbacks() {
+            @Override
+            public void onSuccess(Object object) {
+                ownedCurrencyQuantity = Integer.parseInt(object.toString());
+                updateUI(currency, ownedCurrencyQuantity);
+            }
+
+            @Override
+            public void onFailure(Object object) {
+
+            }
+        });
     }
 
-    private void updateUI(Currency currency) {
+    private void updateUI(Currency currency, int ownedCurrencyQuantity) {
         setTitle(currency.getName());
         descriptionView.setText(currency.getDesc());
         symbol.setText(currency.getSymbol());
         value.setText(getString(R.string.dollar_symbol) + currency.getCurrentValue());
+        owned.setText(String.valueOf(ownedCurrencyQuantity));
         if (currency.getVariation() >= 0) {
             variation.setText("+" + currency.getVariation() + "%");
         } else {
@@ -91,7 +107,7 @@ public class CurrencyDetailActivity extends AppCompatActivity {
             variation.setBackgroundResource(R.drawable.border_rounded_red);
         }
         if (buySellBottomSheetFragment.isVisible()) {
-            buySellBottomSheetFragment.updateUI(currency);
+            buySellBottomSheetFragment.updateUI(currency, ownedCurrencyQuantity);
         }
     }
 
@@ -99,6 +115,7 @@ public class CurrencyDetailActivity extends AppCompatActivity {
         if (!buySellBottomSheetFragment.isAdded()) {
             Bundle bundle = new Bundle();
             bundle.putParcelable("currency", currency);
+            bundle.putInt("owned", ownedCurrencyQuantity);
             bundle.putBoolean("isBuySheet", true);
             buySellBottomSheetFragment.setArguments(bundle);
             buySellBottomSheetFragment.show(
@@ -112,6 +129,7 @@ public class CurrencyDetailActivity extends AppCompatActivity {
         if (!buySellBottomSheetFragment.isAdded()) {
             Bundle bundle = new Bundle();
             bundle.putParcelable("currency", currency);
+            bundle.putInt("owned", ownedCurrencyQuantity);
             bundle.putBoolean("isBuySheet", false);
             buySellBottomSheetFragment.setArguments(bundle);
             buySellBottomSheetFragment.show(
@@ -135,6 +153,8 @@ public class CurrencyDetailActivity extends AppCompatActivity {
     protected void onDestroy() {
         if (currencyListener != null)
             currencyListener.remove();
+        if (ownedCurrencyQuantityListener != null)
+            ownedCurrencyQuantityListener.remove();
         super.onDestroy();
     }
 }

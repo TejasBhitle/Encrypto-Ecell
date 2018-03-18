@@ -29,9 +29,9 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
 
     private boolean isBuySheet;
     private Double balance = null;
-    private ListenerRegistration balanceListener, ownedCurrencyQuantityListener;
+    private ListenerRegistration balanceListener;
     private Currency currency;
-    private int ownedCurrencyQuantity;
+    private int ownedCurrencyQuantity = 0;
     private TextView header, valueText, costText, balanceText, quantityText, plus_minus, ownedText;
     private Button buySellButton;
     private AppCompatSeekBar seekBar;
@@ -48,6 +48,7 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
         Bundle bundle = getArguments();
         if (bundle != null) {
             currency = bundle.getParcelable("currency");
+            ownedCurrencyQuantity = bundle.getInt("owned", 0);
             isBuySheet = bundle.getBoolean("isBuySheet");
         }
 
@@ -55,19 +56,7 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
             @Override
             public void onSuccess(Object object) {
                 balance = (Double) object;
-                ownedCurrencyQuantityListener = FireStoreUtils.getOwnedCurrencyQuantityRealtime(currency.getId(), new FireStoreUtils.FireStoreUtilCallbacks() {
-                    @Override
-                    public void onSuccess(Object object) {
-                        ownedCurrencyQuantity = Integer.parseInt(object.toString());
-                        updateUI(currency);
-                    }
-
-                    @Override
-                    public void onFailure(Object object) {
-                        Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
-                        dismiss();
-                    }
-                });
+                updateUI(currency, ownedCurrencyQuantity);
             }
 
             @Override
@@ -100,8 +89,9 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
         return view;
     }
 
-    public void updateUI(final Currency currency) {
+    public void updateUI(final Currency currency, int ownedCurrencyQuantity) {
         this.currency = currency;
+        this.ownedCurrencyQuantity = ownedCurrencyQuantity;
         final double value = currency.getCurrentValue();
 
         if (!isVisible()) return;
@@ -179,7 +169,5 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
         super.onDestroy();
         if (balanceListener != null)
             balanceListener.remove();
-        if (ownedCurrencyQuantityListener != null)
-            ownedCurrencyQuantityListener.remove();
     }
 }

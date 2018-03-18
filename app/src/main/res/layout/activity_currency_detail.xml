@@ -95,6 +95,29 @@
 
                     </LinearLayout>
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp">
+
+                        <TextView
+                            style="@style/TextAppearance.AppCompat.Medium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/owned_label"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/owned"
+                            style="@style/TextAppearance.AppCompat.Medium"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            tools:text="0" />
+
+                    </LinearLayout>
+
                     <android.support.v7.widget.ButtonBarLayout
                         android:id="@+id/buttons"
                         android:layout_width="match_parent"
