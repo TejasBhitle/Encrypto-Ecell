@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -31,7 +30,13 @@ import java.util.Map;
 
 import spit.ecell.encrypto.models.Currency;
 
-import static spit.ecell.encrypto.Constants.*;
+import static spit.ecell.encrypto.Constants.FS_CURRENCIES_KEY;
+import static spit.ecell.encrypto.Constants.FS_PURCHASED_CURRENCIES_KEY;
+import static spit.ecell.encrypto.Constants.FS_TIMESTAMP;
+import static spit.ecell.encrypto.Constants.FS_TRANSACTIONS_KEY;
+import static spit.ecell.encrypto.Constants.FS_USERS_KEY;
+import static spit.ecell.encrypto.Constants.FS_USER_BALANCE_KEY;
+import static spit.ecell.encrypto.Constants.PREFS;
 
 /**
  * Created by tejas on 18/3/18.
@@ -44,12 +49,6 @@ public class FireStoreUtil {
 
     public FireStoreUtil(Context context) {
         this.context = context;
-    }
-
-    public interface FireStoreUtilCallbacks {
-        void onSuccess(Object object);
-
-        void onFailure(Object object);
     }
 
     public ListenerRegistration getBalance(final FireStoreUtilCallbacks callbacks){
@@ -260,7 +259,7 @@ public class FireStoreUtil {
         Map<String, Object> data = new HashMap<>();
         Map<String, Object> details = new HashMap<>();
         details.put("currency-name",currency_name);
-        details.put("purchased-value",value);
+        details.put("purchased-value", quantity * value);
         details.put("purchased-quantity",quantity);
         details.put("isBought",isBought);
         data.put("details",details);
@@ -329,6 +328,12 @@ public class FireStoreUtil {
                         callbacks.onFailure(null);
                     }
                 });
+    }
+
+    public interface FireStoreUtilCallbacks {
+        void onSuccess(Object object);
+
+        void onFailure(Object object);
     }
 }
 
