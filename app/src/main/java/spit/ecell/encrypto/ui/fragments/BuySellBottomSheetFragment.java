@@ -81,7 +81,7 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
         final double balance = preferences.getFloat(Constants.FIRESTORE_USER_BALANCE_KEY, 0);
         final double value = currency.getCurrentValue();
 
-        header.setText(" " + currency.getSymbol());
+        header.setText("Buy " + currency.getSymbol());
         valueText.setText(getString(R.string.dollar_symbol) + value);
         costText.setText("0");
         balanceText.setText(getString(R.string.dollar_symbol) + balance);
