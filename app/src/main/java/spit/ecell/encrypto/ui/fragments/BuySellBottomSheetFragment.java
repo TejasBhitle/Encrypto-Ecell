@@ -1,6 +1,5 @@
 package spit.ecell.encrypto.ui.fragments;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,12 +17,9 @@ import android.widget.Toast;
 
 import com.google.firebase.firestore.ListenerRegistration;
 
-import spit.ecell.encrypto.Constants;
 import spit.ecell.encrypto.FireStoreUtil;
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Currency;
-
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by tejas on 18/3/18.
@@ -33,13 +29,12 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
 
     private boolean isBuySheet;
     private Double balance = null;
-    private ListenerRegistration balanceListener;
+    private ListenerRegistration balanceListener, ownedCurrencyQuantityListener;
     private Currency currency;
-    private double ownedCurrencyQuantity;
-    private TextView header, valueText, costText, balanceText, quantityText, plus_minus;
+    private int ownedCurrencyQuantity;
+    private TextView header, valueText, costText, balanceText, quantityText, plus_minus, ownedText;
     private Button buySellButton;
     private AppCompatSeekBar seekBar;
-    private SharedPreferences preferences;
     private FireStoreUtil fireStoreUtil;
     private ProgressBar progressBar;
     private LinearLayout sheetLayout;
@@ -62,7 +57,19 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
             @Override
             public void onSuccess(Object object) {
                 balance = (Double) object;
-                updateUI(currency);
+                ownedCurrencyQuantityListener = fireStoreUtil.getOwnedCurrencyQuantityRealtime(currency.getId(), new FireStoreUtil.FireStoreUtilCallbacks() {
+                    @Override
+                    public void onSuccess(Object object) {
+                        ownedCurrencyQuantity = Integer.parseInt(object.toString());
+                        updateUI(currency);
+                    }
+
+                    @Override
+                    public void onFailure(Object object) {
+                        Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
+                        dismiss();
+                    }
+                });
             }
 
             @Override
@@ -87,11 +94,10 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
         sheetLayout = view.findViewById(R.id.sheetLayout);
         buySellButton = view.findViewById(R.id.confirm_button);
         plus_minus = view.findViewById(R.id.plus_minus);
-
-        preferences = getActivity().getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
+        ownedText = view.findViewById(R.id.owned);
 
         progressBar.setVisibility(View.VISIBLE);
-        sheetLayout.setVisibility(View.GONE);
+        sheetLayout.setVisibility(View.INVISIBLE);
 
         return view;
     }
@@ -102,39 +108,27 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
 
         if (!isVisible()) return;
         if (balance == null) return;
+        seekBar.setProgress(0);
         progressBar.setVisibility(View.GONE);
         sheetLayout.setVisibility(View.VISIBLE);
 
         if (isBuySheet) {
-            header.setText("Buy " + currency.getSymbol());
+            header.setText(getString(R.string.buy_currency_placeholder, currency.getSymbol()));
             plus_minus.setText("-");
             seekBar.setMax((int) (balance / value));
             buySellButton.setText(R.string.confirm_purchase);
         } else {
-            header.setText("Sell " + currency.getSymbol());
+            header.setText(getString(R.string.sell_currency_placeholder, currency.getSymbol()));
             plus_minus.setText("+");
-            seekBar.setEnabled(false);
-            fireStoreUtil.getOwnedCurrencyQuantity(currency.getId(), new FireStoreUtil.FireStoreUtilCallbacks() {
-                @Override
-                public void onSuccess(Object object) {
-                    ownedCurrencyQuantity = Double.parseDouble(object.toString());
-                    seekBar.setMax((int) ownedCurrencyQuantity);
-                    seekBar.setEnabled(true);
-                }
-
-                @Override
-                public void onFailure(Object object) {
-                    Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
-                    dismiss();
-                }
-            });
+            seekBar.setMax(ownedCurrencyQuantity);
             buySellButton.setText(R.string.confirm_sale);
         }
 
-        valueText.setText(getString(R.string.dollar_symbol) + value);
+        valueText.setText(String.valueOf(value));
         costText.setText("0");
-        quantityText.setText("x 0");
-        balanceText.setText(getString(R.string.dollar_symbol) + balance);
+        quantityText.setText("0");
+        balanceText.setText(String.valueOf(balance));
+        ownedText.setText(String.valueOf(ownedCurrencyQuantity));
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -142,9 +136,9 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
                 if (fromUser) {
                     double cost = value * progress;
                     double newBalance = (isBuySheet) ? (balance - cost) : (balance + cost);
-                    quantityText.setText("x " + progress);
-                    costText.setText(getString(R.string.dollar_symbol) + cost);
-                    balanceText.setText(getString(R.string.dollar_symbol) + newBalance);
+                    quantityText.setText(String.valueOf(progress));
+                    costText.setText(String.valueOf(cost));
+                    balanceText.setText(String.valueOf(newBalance));
                 }
             }
 
@@ -171,8 +165,9 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
                                     "Sale confirmed for " + seekBar.getProgress() + " " + currency.getSymbol() +
                                             " for " + costText.getText(), Toast.LENGTH_SHORT).show();
                         }
+                        sheetLayout.setVisibility(View.INVISIBLE);
+                        progressBar.setVisibility(View.VISIBLE);
                         fireStoreUtil.buySellCurrency(currency, seekBar.getProgress(), isBuySheet);
-                        dismiss();
                     }
                 }
             }
@@ -186,5 +181,7 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
         super.onDestroy();
         if (balanceListener != null)
             balanceListener.remove();
+        if (ownedCurrencyQuantityListener != null)
+            ownedCurrencyQuantityListener.remove();
     }
 }

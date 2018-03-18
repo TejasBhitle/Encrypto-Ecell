@@ -212,7 +212,6 @@ public class FireStoreUtil {
                 double balance = snapshot.getDouble(FS_USER_BALANCE_KEY);
                 balance -= quantity * currency.getCurrentValue();
                 transaction.update(userRef, FS_USER_BALANCE_KEY, balance);
-
                 return null;
             }
         });
@@ -242,7 +241,7 @@ public class FireStoreUtil {
         });
 
         /*update transaction node*/
-        createTransaction(currency.getName(), quantity, currency.getCurrentValue(), true);
+        createTransaction(currency.getName(), quantity, currency.getCurrentValue(), isBuy);
 
     }
 
@@ -325,7 +324,6 @@ public class FireStoreUtil {
     }
 
     public void getOwnedCurrencyQuantity(String currencyId, final FireStoreUtilCallbacks callbacks) {
-
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -345,9 +343,13 @@ public class FireStoreUtil {
                                 if (task.isSuccessful()) {
                                     Log.e(TAG, "Success");
                                     DocumentSnapshot document = task.getResult();
-                                    Object object = document.get(FS_QUANTITY_KEY);
-                                    if (object != null) {
-                                        quantity = Double.parseDouble(object.toString());
+                                    if (document.exists()) {
+                                        Object object = document.get(FS_QUANTITY_KEY);
+                                        if (object != null) {
+                                            quantity = Double.parseDouble(object.toString());
+                                        }
+                                    } else {
+                                        quantity = 0;
                                     }
                                 } else {
                                     Log.e(TAG, "Error getting documents: ", task.getException());
@@ -364,8 +366,34 @@ public class FireStoreUtil {
                             callbacks.onFailure(null);
                     }
                 });
+    }
 
+    public ListenerRegistration getOwnedCurrencyQuantityRealtime(String currencyId, final FireStoreUtilCallbacks callbacks) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            callbacks.onFailure("User is null");
+        }
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        DocumentReference ref = db.collection(FS_USERS_KEY).document(user.getUid())
+                .collection(FS_PURCHASED_CURRENCIES_KEY).document(currencyId);
+        return ref.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
+                HashMap<String, Object> map = (HashMap<String, Object>) snapshot.getData();
+                /*
+                 If the decimal places are .00 then firebase stores them as long
+                 otherwise its double
+                */
+                try {
+                    int owned = (int) Double.parseDouble(map.get(FS_QUANTITY_KEY).toString());
+                    callbacks.onSuccess(owned);
+                } catch (ClassCastException exp) {
+                    int owned = ((Long) map.get(FS_QUANTITY_KEY)).intValue();
+                    callbacks.onSuccess(owned);
+                }
+            }
+        });
     }
 
     public interface FireStoreUtilCallbacks {

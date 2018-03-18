@@ -200,7 +200,6 @@ public class LoginActivity extends AppCompatActivity {
                                             SharedPreferences.Editor editor = prefs.edit();
                                             editor.putString(Constants.USER_NAME, username);
                                             editor.putString(Constants.USER_EMAIL, email);
-                                            editor.putFloat(Constants.FS_USER_BALANCE_KEY, balance);
                                             editor.apply();
                                             Log.d(TAG, "Name: " + username + "\nEmail: " + email + "\nBalance: " + balance);
                                             progressDialog.dismiss();
@@ -290,7 +289,7 @@ public class LoginActivity extends AppCompatActivity {
         String UID = currentUser.getUid();
 
         Map<String, Object> data = new HashMap<>();
-        data.put(Constants.FS_USER_BALANCE_KEY, 10000.00);
+        data.put(Constants.FS_USER_BALANCE_KEY, 20000.00);
         data.put(Constants.FS_USER_NAME_KEY, name);
         db.collection(USERS).document(UID).set(data)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {

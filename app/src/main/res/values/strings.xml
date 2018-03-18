@@ -33,7 +33,9 @@
     <string name="please_wait">Please wait…</string>
     <string name="balance">Balance</string>
     <string name="buy">Buy</string>
+    <string name="buy_currency_placeholder">Buy %1$s</string>
     <string name="sell">Sell</string>
+    <string name="sell_currency_placeholder">Sell %1$s</string>
     <string name="no_transactions">No transactions to show</string>
     <string name="no_currencies">No currencies to show</string>
     <string name="owned_label">Owned:</string>

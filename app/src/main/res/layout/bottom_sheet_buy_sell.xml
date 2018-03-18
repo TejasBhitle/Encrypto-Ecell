@@ -34,20 +34,26 @@
 
             <TextView
                 style="@style/TextAppearance.AppCompat.Medium"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginTop="8dp"
+                android:layout_weight="1"
                 android:text="@string/value" />
+
+            <TextView
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:text="@string/dollar_symbol" />
 
             <TextView
                 android:id="@+id/value"
                 style="@style/TextAppearance.AppCompat.Medium"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                android:layout_weight="1"
-                android:gravity="end"
                 tools:text="1000" />
 
 
@@ -59,19 +65,56 @@
 
             <TextView
                 style="@style/TextAppearance.AppCompat.Medium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_weight="1"
+                android:text="@string/owned_label" />
+
+            <TextView
+                style="@style/TextAppearance.AppCompat.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:text="x" />
+
+            <TextView
+                android:id="@+id/owned"
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                tools:text="0" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_weight="1"
                 android:text="@string/select_quantity" />
+
+            <TextView
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:text="x" />
 
             <TextView
                 android:id="@+id/quantity"
                 style="@style/TextAppearance.AppCompat.Medium"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                android:layout_weight="1"
-                android:gravity="end"
-                tools:text="x 0" />
+                tools:text="0" />
         </LinearLayout>
 
         <android.support.v7.widget.AppCompatSeekBar
@@ -107,8 +150,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                android:gravity="end"
-                android:text="0" />
+                tools:text="0" />
 
         </LinearLayout>
 
@@ -118,20 +160,26 @@
 
             <TextView
                 style="@style/TextAppearance.AppCompat.Medium"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginTop="8dp"
+                android:layout_weight="1"
                 android:text="@string/balance_after_purchase" />
+
+            <TextView
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:text="@string/dollar_symbol" />
 
             <TextView
                 android:id="@+id/balance"
                 style="@style/TextAppearance.AppCompat.Medium"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                android:layout_weight="1"
-                android:gravity="end"
                 tools:text="1000" />
 
         </LinearLayout>
