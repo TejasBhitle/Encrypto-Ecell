@@ -14,24 +14,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
 
-import spit.ecell.encrypto.Constants;
 import spit.ecell.encrypto.FireStoreUtil;
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Transaction;
@@ -45,8 +30,6 @@ public class TransactionsFragment extends Fragment {
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextView blankText;
-    private FireStoreUtil fireStoreUtil;
-
     FireStoreUtil.FireStoreUtilCallbacks callbacks = new FireStoreUtil.FireStoreUtilCallbacks() {
         @Override
         public void onSuccess(Object object) {
@@ -58,6 +41,7 @@ public class TransactionsFragment extends Fragment {
             Toast.makeText(getActivity(), "Failed to get transaction history", Toast.LENGTH_SHORT).show();
         }
     };
+    private FireStoreUtil fireStoreUtil;
 
     public TransactionsFragment() {
         // Required empty public constructor
@@ -72,7 +56,7 @@ public class TransactionsFragment extends Fragment {
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         blankText = view.findViewById(R.id.blankText);
 
-        fireStoreUtil =  new FireStoreUtil(getActivity());
+        fireStoreUtil = new FireStoreUtil(getActivity());
 
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -89,10 +73,10 @@ public class TransactionsFragment extends Fragment {
         return view;
     }
 
-
-    public void updateUI(ArrayList<Transaction> transactions){
-        Log.d(TAG,"updating UI ....");
-        if(transactions.size() != 0) {
+    public void updateUI(ArrayList<Transaction> transactions) {
+        Log.d(TAG, "updating UI ....");
+        if (transactions.size() != 0) {
+            Collections.reverse(transactions);
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             recyclerView.setAdapter(new TransactionAdapter(transactions, getContext()));
             blankText.setVisibility(View.GONE);
@@ -101,8 +85,5 @@ public class TransactionsFragment extends Fragment {
         }
         swipeRefreshLayout.setRefreshing(false);
     }
-
-
-
 
 }

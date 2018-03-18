@@ -9,7 +9,7 @@ import java.util.Date;
 public class Transaction {
     private String name;
     private Date timeStamp;
-    private double value,quantity;
+    private double value, quantity;
     private boolean isBought;
 
     public Transaction(String name, double value, double quantity, boolean isBought, Date timeStamp) {

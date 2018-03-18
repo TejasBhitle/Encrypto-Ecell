@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Transaction;
@@ -31,18 +32,18 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(context).
-                inflate(R.layout.list_item_transaction,parent,false));
+                inflate(R.layout.list_item_transaction, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Transaction data = transactions.get(position);
         String text = (data.isBought() ? "Bought " : "Sold ")
-                +(int)data.getQuantity()+" "
-                + data.getName() + " for $" + data.getValue() * data.getQuantity();
+                + (int) Math.abs(data.getQuantity()) + " "
+                + data.getName() + " for $" + Math.abs(data.getValue() * data.getQuantity());
         holder.detailsTextView.setText(text);
 
-        SimpleDateFormat localDateFormat = new SimpleDateFormat("HH:mm:ss a");
+        SimpleDateFormat localDateFormat = new SimpleDateFormat("d/MM HH:mma", Locale.getDefault());
         String time = localDateFormat.format(data.getTimeStamp());
         holder.timestampTextView.setText(time);
     }
