@@ -297,7 +297,7 @@ public class FireStoreUtil {
         }
         db.collection(FS_USERS_KEY)
                 .document(user.getUid())
-                .collection(FS_TRANSACTIONS_KEY)
+                .collection(FS_TRANSACTIONS_KEY).orderBy(FS_TIMESTAMP)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

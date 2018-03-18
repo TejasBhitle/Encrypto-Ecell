@@ -17,5 +17,6 @@ public class Constants {
     public static final String FS_TRANSACTIONS_KEY = "transactions";
     public static final String FS_CURRENCIES_KEY = "currencies";
     public static final String FS_PURCHASED_CURRENCIES_KEY ="purchased-currencies";
+    public static final String FS_TIMESTAMP = "timestamp";
 
 }
