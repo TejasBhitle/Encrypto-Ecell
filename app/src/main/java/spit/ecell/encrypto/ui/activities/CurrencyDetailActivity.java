@@ -101,10 +101,12 @@ public class CurrencyDetailActivity extends AppCompatActivity {
                 bottomSheetDialog.findViewById(R.id.confirm_purchase).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // TODO: Buy request
-                        Toast.makeText(CurrencyDetailActivity.this,
-                                "Purchase confirmed for " + seekBar.getProgress() + " " + currency.getSymbol() +
-                                        " for " + costText.getText(), Toast.LENGTH_SHORT).show();
+                        if (seekBar.getProgress() > 0) {
+                            // TODO: Buy request
+                            Toast.makeText(CurrencyDetailActivity.this,
+                                    "Purchase confirmed for " + seekBar.getProgress() + " " + currency.getSymbol() +
+                                            " for " + costText.getText(), Toast.LENGTH_SHORT).show();
+                        }
                         bottomSheetDialog.dismiss();
                     }
                 });
