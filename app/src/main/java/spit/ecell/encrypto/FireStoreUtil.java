@@ -3,11 +3,13 @@ package spit.ecell.encrypto;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -19,8 +21,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 
 import spit.ecell.encrypto.models.Currency;
@@ -54,7 +59,7 @@ public class FireStoreUtil {
             return;
         }
 
-        db.collection(Constants.FIRESTORE_CURRENCIES_KEY)
+        db.collection(Constants.FS_CURRENCIES_KEY)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -103,7 +108,7 @@ public class FireStoreUtil {
             return null;
         }
 
-        CollectionReference collectionRef = db.collection(Constants.FIRESTORE_CURRENCIES_KEY);
+        CollectionReference collectionRef = db.collection(Constants.FS_CURRENCIES_KEY);
 
         return collectionRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -142,7 +147,7 @@ public class FireStoreUtil {
 
         final SharedPreferences prefs = context.getSharedPreferences(Constants.PREFS, Context.MODE_PRIVATE);
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference currencyRef = db.collection(Constants.FIRESTORE_CURRENCIES_KEY).document(id);
+        DocumentReference currencyRef = db.collection(Constants.FS_CURRENCIES_KEY).document(id);
 
         return currencyRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -163,6 +168,91 @@ public class FireStoreUtil {
                 }
             }
         });
+    }
+
+    public void buyCurrency(final Currency currency, final double quantity){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user == null) return;
+        String userId = user.getUid();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        /*change balance*/
+        final DocumentReference userRef = db.collection(Constants.FS_USERS_KEY)
+                .document(userId);
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(userRef);
+                double balance = snapshot.getDouble(Constants.FS_USER_BALANCE_KEY);
+                balance -= quantity*currency.getCurrentValue();
+                transaction.update(userRef, Constants.FS_USER_BALANCE_KEY, balance);
+
+                return null;
+            }
+        });
+
+        /*purchase currency*/
+        final DocumentReference purchased_currencies =
+                userRef.collection(Constants.FS_PURCHASED_CURRENCIES_KEY)
+                        .document(currency.getId());
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+
+                DocumentSnapshot snapshot = transaction.get(purchased_currencies);
+                if(snapshot.exists()){
+                    double newQuantity = snapshot.getDouble("quantity");
+                    newQuantity += quantity;
+                    transaction.update(purchased_currencies,"quantity",newQuantity);
+                }else{
+                    Map<String,Object> map =  new HashMap<>();
+                    map.put("quantity",0);
+                    /*quantity = 0 because on creating this the upper transaction runs again*/
+                    purchased_currencies.set(map);
+                }
+                return null;
+            }
+        });
+
+        /*update transaction node*/
+        createTransaction(currency.getName(),quantity,currency.getCurrentValue(),true);
+
+    }
+
+    private void createTransaction(String currency_name,Double quantity, Double value, boolean isBought){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user == null) return;
+
+        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> details = new HashMap<>();
+        details.put("currency-name",currency_name);
+        details.put("purchased-value",value);
+        details.put("purchased-quantity",quantity);
+        details.put("isBought",isBought);
+        data.put("details",details);
+        data.put("timestamp", Calendar.getInstance().getTime());
+
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(Constants.FS_USERS_KEY)
+                .document(user.getUid())
+                .collection(Constants.FS_TRANSACTIONS_KEY)
+                .add(data)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.e(TAG,"transaction added");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG,"transaction adding failed");
+                    }
+                });
     }
 }
 

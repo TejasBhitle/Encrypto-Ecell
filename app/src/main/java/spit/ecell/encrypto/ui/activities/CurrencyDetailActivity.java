@@ -2,13 +2,9 @@ package spit.ecell.encrypto.ui.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatSeekBar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,13 +40,13 @@ public class CurrencyDetailActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
 
-        if (extras == null || !extras.containsKey(Constants.FIRESTORE_CURRENCIES_KEY)) {
+        if (extras == null || !extras.containsKey(Constants.FS_CURRENCIES_KEY)) {
             Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        currency = extras.getParcelable(Constants.FIRESTORE_CURRENCIES_KEY);
+        currency = extras.getParcelable(Constants.FS_CURRENCIES_KEY);
         buySellBottomSheetFragment = new BuySellBottomSheetFragment();
 
 

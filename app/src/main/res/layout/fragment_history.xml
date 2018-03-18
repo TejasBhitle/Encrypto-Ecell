@@ -24,12 +24,4 @@
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <!--TODO: Delete this-->
-    <Button
-        android:id="@+id/test"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:text="Create DEBUG transaction" />
-
 </RelativeLayout>

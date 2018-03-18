@@ -1,6 +1,5 @@
 package spit.ecell.encrypto.ui.fragments;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,9 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import spit.ecell.encrypto.Constants;
+import spit.ecell.encrypto.FireStoreUtil;
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Currency;
 
@@ -31,12 +30,15 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
     private TextView header,valueText,costText,balanceText;
     private AppCompatSeekBar seekBar;
     private SharedPreferences preferences;
+    private FireStoreUtil fireStoreUtil;
 
     public BuySellBottomSheetFragment(){}
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        fireStoreUtil = new FireStoreUtil(getActivity());
 
         Bundle bundle = getArguments();
         if(bundle != null){
@@ -62,12 +64,15 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
         view.findViewById(R.id.confirm_purchase).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (seekBar.getProgress() > 0) {
+
+                fireStoreUtil.buyCurrency(currency,10.0);
+
+                /*if (seekBar.getProgress() > 0) {
                     // TODO: Buy request
                     Toast.makeText(getActivity(),
                             "Purchase confirmed for " + seekBar.getProgress() + " " + currency.getSymbol() +
                                     " for " + costText.getText(), Toast.LENGTH_SHORT).show();
-                }
+                }*/
                 //TODO: ->view.dismiss();
 
             }
@@ -78,7 +83,7 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
 
     public void updateUI(final Currency currency){
         this.currency = currency;
-        final double balance = preferences.getFloat(Constants.FIRESTORE_USER_BALANCE_KEY, 0);
+        final double balance = preferences.getFloat(Constants.FS_USER_BALANCE_KEY, 0);
         final double value = currency.getCurrentValue();
 
         header.setText("Buy " + currency.getSymbol());

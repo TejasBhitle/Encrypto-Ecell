@@ -67,13 +67,6 @@ public class TransactionsFragment extends Fragment {
 
         getTransactions();
 
-        view.findViewById(R.id.test).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createTransaction("BTC",20.0,100.0,true);
-            }
-        });
-
         return view;
     }
 
@@ -100,9 +93,9 @@ public class TransactionsFragment extends Fragment {
             return;
         }
         swipeRefreshLayout.setRefreshing(true);
-        db.collection(Constants.FIRESTORE_USERS_KEY)
+        db.collection(Constants.FS_USERS_KEY)
                 .document(user.getUid())
-                .collection(Constants.FIRESTORE_TRANSACTIONS_KEY)
+                .collection(Constants.FS_TRANSACTIONS_KEY)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -135,41 +128,7 @@ public class TransactionsFragment extends Fragment {
                 });
     }
 
-    public void createTransaction(String name, Double quantity, Double value, boolean isBought){
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user == null) return;
 
-        Map<String, Object> data = new HashMap<>();
-        Map<String, Object> details = new HashMap<>();
-        details.put("currency-name",name);
-        details.put("purchased-value",value);
-        details.put("purchased-quantity",quantity);
-        details.put("isBought",isBought);
-        data.put("details",details);
-        data.put("timestamp", Calendar.getInstance().getTime());
-
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection(Constants.FIRESTORE_USERS_KEY)
-                .document(user.getUid())
-                .collection(Constants.FIRESTORE_TRANSACTIONS_KEY)
-                .add(data)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.e(TAG,"transaction added");
-                        Toast.makeText(getActivity(), "Transaction created", Toast.LENGTH_SHORT).show();
-                        getTransactions();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG,"transaction adding failed");
-                        Toast.makeText(getActivity(), "Failed to create transaction", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
 
 
 }

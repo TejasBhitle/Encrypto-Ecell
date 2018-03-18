@@ -53,7 +53,7 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, CurrencyDetailActivity.class);
-                intent.putExtra(Constants.FIRESTORE_CURRENCIES_KEY, currency);
+                intent.putExtra(Constants.FS_CURRENCIES_KEY, currency);
                 context.startActivity(intent);
             }
         });

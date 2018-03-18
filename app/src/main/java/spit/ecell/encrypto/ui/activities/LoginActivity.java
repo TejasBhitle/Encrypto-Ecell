@@ -194,13 +194,13 @@ public class LoginActivity extends AppCompatActivity {
                                     db.collection(USERS).document(currentUser.getUid()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                                         @Override
                                         public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-                                            String username = (String) documentSnapshot.get(Constants.FIRESTORE_USER_NAME_KEY);
+                                            String username = (String) documentSnapshot.get(Constants.FS_USER_NAME_KEY);
                                             String email = currentUser.getEmail();
-                                            Float balance = Float.parseFloat(documentSnapshot.get(Constants.FIRESTORE_USER_BALANCE_KEY).toString());
+                                            Float balance = Float.parseFloat(documentSnapshot.get(Constants.FS_USER_BALANCE_KEY).toString());
                                             SharedPreferences.Editor editor = prefs.edit();
                                             editor.putString(Constants.USER_NAME, username);
                                             editor.putString(Constants.USER_EMAIL, email);
-                                            editor.putFloat(Constants.FIRESTORE_USER_BALANCE_KEY, balance);
+                                            editor.putFloat(Constants.FS_USER_BALANCE_KEY, balance);
                                             editor.apply();
                                             Log.d(TAG, "Name: " + username + "\nEmail: " + email + "\nBalance: " + balance);
                                             progressDialog.dismiss();
@@ -290,8 +290,8 @@ public class LoginActivity extends AppCompatActivity {
         String UID = currentUser.getUid();
 
         Map<String, Object> data = new HashMap<>();
-        data.put(Constants.FIRESTORE_USER_BALANCE_KEY, 10000);
-        data.put(Constants.FIRESTORE_USER_NAME_KEY, name);
+        data.put(Constants.FS_USER_BALANCE_KEY, 10000);
+        data.put(Constants.FS_USER_NAME_KEY, name);
         db.collection(USERS).document(UID).set(data)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override

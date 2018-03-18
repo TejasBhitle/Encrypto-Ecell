@@ -11,9 +11,11 @@ public class Constants {
     public static final String USER_EMAIL = "USER_EMAIL";
     public static final String IS_FIRST_LAUNCH = "IS_FIRST_LAUNCH";
 
-    public static final String FIRESTORE_USER_NAME_KEY = "name";
-    public static final String FIRESTORE_USER_BALANCE_KEY = "wallet-balance";
-    public static final String FIRESTORE_USERS_KEY = "users";
-    public static final String FIRESTORE_TRANSACTIONS_KEY = "transactions";
-    public static final String FIRESTORE_CURRENCIES_KEY = "currencies";
+    public static final String FS_USER_NAME_KEY = "name";
+    public static final String FS_USER_BALANCE_KEY = "wallet-balance";
+    public static final String FS_USERS_KEY = "users";
+    public static final String FS_TRANSACTIONS_KEY = "transactions";
+    public static final String FS_CURRENCIES_KEY = "currencies";
+    public static final String FS_PURCHASED_CURRENCIES_KEY ="purchased-currencies";
+
 }
