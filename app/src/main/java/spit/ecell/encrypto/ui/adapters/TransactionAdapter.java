@@ -39,7 +39,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         Transaction data = transactions.get(position);
         String text = (data.isBought() ? "Bought " : "Sold ")
                 +(int)data.getQuantity()+" "
-                +data.getName()+" for $"+data.getValue();
+                + data.getName() + " for $" + data.getValue() * data.getQuantity();
         holder.detailsTextView.setText(text);
 
         SimpleDateFormat localDateFormat = new SimpleDateFormat("HH:mm:ss a");

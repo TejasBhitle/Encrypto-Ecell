@@ -51,9 +51,9 @@ public class FireStoreUtil {
         this.context = context;
     }
 
-    public ListenerRegistration getBalance(final FireStoreUtilCallbacks callbacks){
+    public ListenerRegistration getBalance(final FireStoreUtilCallbacks callbacks) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user == null){
+        if (user == null) {
             callbacks.onFailure("User is null");
         }
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -62,7 +62,7 @@ public class FireStoreUtil {
         return userRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
-                HashMap<String,Object> map = (HashMap<String, Object>)snapshot.getData();
+                HashMap<String, Object> map = (HashMap<String, Object>) snapshot.getData();
 
                 /*
                  If the decimal places are .00 then firebase stores them as long
@@ -71,8 +71,8 @@ public class FireStoreUtil {
                 try {
                     Double balance = (Double) map.get(FS_USER_BALANCE_KEY);
                     callbacks.onSuccess(balance);
-                }catch (ClassCastException exp){
-                    Double balance = ((Long)map.get(FS_USER_BALANCE_KEY)).doubleValue();
+                } catch (ClassCastException exp) {
+                    Double balance = ((Long) map.get(FS_USER_BALANCE_KEY)).doubleValue();
                     callbacks.onSuccess(balance);
                 }
             }
@@ -173,7 +173,7 @@ public class FireStoreUtil {
     }
 
     public ListenerRegistration getCurrencyRealTimeById(String id,
-                                                        final FireStoreUtilCallbacks callbacks){
+                                                        final FireStoreUtilCallbacks callbacks) {
 
         final SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -193,16 +193,16 @@ public class FireStoreUtil {
                 Double factor = Double.parseDouble(object.get("variation-factor").toString());
                 Integer owned = prefs.getInt("OWNED_" + symbol, 0);
                 Currency currency = new Currency(id, symbol, name, desc, value, variation, owned, factor, circulation);
-                if(callbacks != null){
+                if (callbacks != null) {
                     callbacks.onSuccess(currency);
                 }
             }
         });
     }
 
-    public void buyCurrency(final Currency currency, final double quantity){
+    public void buyCurrency(final Currency currency, final double quantity) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user == null) return;
+        if (user == null) return;
         String userId = user.getUid();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -216,7 +216,7 @@ public class FireStoreUtil {
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 DocumentSnapshot snapshot = transaction.get(userRef);
                 double balance = snapshot.getDouble(FS_USER_BALANCE_KEY);
-                balance -= quantity*currency.getCurrentValue();
+                balance -= quantity * currency.getCurrentValue();
                 transaction.update(userRef, FS_USER_BALANCE_KEY, balance);
 
                 return null;
@@ -233,13 +233,13 @@ public class FireStoreUtil {
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
 
                 DocumentSnapshot snapshot = transaction.get(purchased_currencies);
-                if(snapshot.exists()){
+                if (snapshot.exists()) {
                     double newQuantity = snapshot.getDouble("quantity");
                     newQuantity += quantity;
-                    transaction.update(purchased_currencies,"quantity",newQuantity);
-                }else{
-                    Map<String,Object> map =  new HashMap<>();
-                    map.put("quantity",0);
+                    transaction.update(purchased_currencies, "quantity", newQuantity);
+                } else {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("quantity", 0);
                     /*quantity = 0 because on creating this the upper transaction runs again*/
                     purchased_currencies.set(map);
                 }
@@ -248,21 +248,21 @@ public class FireStoreUtil {
         });
 
         /*update transaction node*/
-        createTransaction(currency.getName(),quantity,currency.getCurrentValue(),true);
+        createTransaction(currency.getName(), quantity, currency.getCurrentValue(), true);
 
     }
 
-    private void createTransaction(String currency_name,Double quantity, Double value, boolean isBought){
+    private void createTransaction(String currency_name, Double quantity, Double value, boolean isBought) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user == null) return;
+        if (user == null) return;
 
         Map<String, Object> data = new HashMap<>();
         Map<String, Object> details = new HashMap<>();
-        details.put("currency-name",currency_name);
-        details.put("purchased-value", quantity * value);
-        details.put("purchased-quantity",quantity);
-        details.put("isBought",isBought);
-        data.put("details",details);
+        details.put("currency-name", currency_name);
+        details.put("purchased-value", value);
+        details.put("purchased-quantity", quantity);
+        details.put("isBought", isBought);
+        data.put("details", details);
         data.put("timestamp", Calendar.getInstance().getTime());
 
 
@@ -274,24 +274,24 @@ public class FireStoreUtil {
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        Log.e(TAG,"transaction added");
+                        Log.e(TAG, "transaction added");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG,"transaction adding failed");
+                        Log.e(TAG, "transaction adding failed");
                     }
                 });
     }
 
-    public void getTransactions(final FireStoreUtilCallbacks callbacks){
+    public void getTransactions(final FireStoreUtilCallbacks callbacks) {
         final ArrayList<spit.ecell.encrypto.models.Transaction> transactions = new ArrayList<>();
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if(user==null){
-            Log.d(TAG,"user is null");
+        if (user == null) {
+            Log.d(TAG, "user is null");
             return;
         }
         db.collection(FS_USERS_KEY)
@@ -302,17 +302,17 @@ public class FireStoreUtil {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.e(TAG,"Success");
+                            Log.e(TAG, "Success");
                             for (DocumentSnapshot document : task.getResult()) {
-                                Map<String,Object> object = document.getData();
-                                Log.e(TAG,object.toString());
-                                Map<String, Object> details = (HashMap<String,Object>)object.get("details");
+                                Map<String, Object> object = document.getData();
+                                Log.e(TAG, object.toString());
+                                Map<String, Object> details = (HashMap<String, Object>) object.get("details");
                                 String name = details.get("currency-name").toString();
                                 Double quantity = Double.parseDouble(details.get("purchased-quantity").toString());
                                 Double value = Double.parseDouble(details.get("purchased-value").toString());
-                                boolean isBought = Boolean.parseBoolean( details.get("isBought").toString());
-                                Date timestamp = (Date)object.get("timestamp");
-                                transactions.add(new spit.ecell.encrypto.models.Transaction(name,value,quantity,isBought,timestamp));
+                                boolean isBought = Boolean.parseBoolean(details.get("isBought").toString());
+                                Date timestamp = (Date) object.get("timestamp");
+                                transactions.add(new spit.ecell.encrypto.models.Transaction(name, value, quantity, isBought, timestamp));
 
                             }
                             callbacks.onSuccess(transactions);
