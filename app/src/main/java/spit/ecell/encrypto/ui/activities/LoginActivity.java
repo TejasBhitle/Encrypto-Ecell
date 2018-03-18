@@ -288,6 +288,9 @@ public class LoginActivity extends AppCompatActivity {
         }
         String UID = currentUser.getUid();
 
+        // Since we are redirecting to login
+        mAuth.signOut();
+
         Map<String, Object> data = new HashMap<>();
         data.put(Constants.FS_USER_BALANCE_KEY, 20000.00);
         data.put(Constants.FS_USER_NAME_KEY, name);
