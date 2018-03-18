@@ -35,7 +35,8 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
     private Double balance = null;
     private ListenerRegistration balanceListener;
     private Currency currency;
-    private TextView header,valueText,costText,balanceText,quantityText;
+    private double ownedCurrencyQuantity;
+    private TextView header, valueText, costText, balanceText, quantityText, plus_minus;
     private Button buySellButton;
     private AppCompatSeekBar seekBar;
     private SharedPreferences preferences;
@@ -43,14 +44,15 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
     private ProgressBar progressBar;
     private LinearLayout sheetLayout;
 
-    public BuySellBottomSheetFragment(){}
+    public BuySellBottomSheetFragment() {
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Bundle bundle = getArguments();
-        if(bundle != null){
+        if (bundle != null) {
             currency = bundle.getParcelable("currency");
             isBuySheet = bundle.getBoolean("isBuySheet");
         }
@@ -59,12 +61,13 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
         balanceListener = fireStoreUtil.getBalance(new FireStoreUtil.FireStoreUtilCallbacks() {
             @Override
             public void onSuccess(Object object) {
-                balance = (Double)object;
+                balance = (Double) object;
                 updateUI(currency);
             }
 
             @Override
-            public void onFailure(Object object) {}
+            public void onFailure(Object object) {
+            }
         });
 
     }
@@ -72,17 +75,18 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.bottom_sheet_buy,container,false);
+        final View view = inflater.inflate(R.layout.bottom_sheet_buy_sell, container, false);
 
-        header = view.findViewById(R.id.buy_header);
+        header = view.findViewById(R.id.header);
         valueText = view.findViewById(R.id.value);
         costText = view.findViewById(R.id.cost);
         balanceText = view.findViewById(R.id.balance);
-        quantityText =view.findViewById(R.id.quantity);
+        quantityText = view.findViewById(R.id.quantity);
         seekBar = view.findViewById(R.id.seekbar);
         progressBar = view.findViewById(R.id.progressBar);
         sheetLayout = view.findViewById(R.id.sheetLayout);
-        buySellButton = view.findViewById(R.id.confirm_purchase);
+        buySellButton = view.findViewById(R.id.confirm_button);
+        plus_minus = view.findViewById(R.id.plus_minus);
 
         preferences = getActivity().getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
 
@@ -92,50 +96,82 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
         return view;
     }
 
-    public void updateUI(final Currency currency){
+    public void updateUI(final Currency currency) {
         this.currency = currency;
         final double value = currency.getCurrentValue();
 
-        if(!isVisible()) return;
-        if(balance == null)return;
+        if (!isVisible()) return;
+        if (balance == null) return;
         progressBar.setVisibility(View.GONE);
         sheetLayout.setVisibility(View.VISIBLE);
 
-        header.setText("Buy " + currency.getSymbol());
+        if (isBuySheet) {
+            header.setText("Buy " + currency.getSymbol());
+            plus_minus.setText("-");
+            seekBar.setMax((int) (balance / value));
+            buySellButton.setText(R.string.confirm_purchase);
+        } else {
+            header.setText("Sell " + currency.getSymbol());
+            plus_minus.setText("+");
+            seekBar.setEnabled(false);
+            fireStoreUtil.getOwnedCurrencyQuantity(currency.getId(), new FireStoreUtil.FireStoreUtilCallbacks() {
+                @Override
+                public void onSuccess(Object object) {
+                    ownedCurrencyQuantity = Double.parseDouble(object.toString());
+                    seekBar.setMax((int) ownedCurrencyQuantity);
+                    seekBar.setEnabled(true);
+                }
+
+                @Override
+                public void onFailure(Object object) {
+                    Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
+                    dismiss();
+                }
+            });
+            buySellButton.setText(R.string.confirm_sale);
+        }
+
         valueText.setText(getString(R.string.dollar_symbol) + value);
         costText.setText("0");
         quantityText.setText("x 0");
         balanceText.setText(getString(R.string.dollar_symbol) + balance);
 
-        seekBar.setMax((int) (balance / value));
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     double cost = value * progress;
-                    double newBalance = (balance - cost);
-                    quantityText.setText("x "+progress);
+                    double newBalance = (isBuySheet) ? (balance - cost) : (balance + cost);
+                    quantityText.setText("x " + progress);
                     costText.setText(getString(R.string.dollar_symbol) + cost);
                     balanceText.setText(getString(R.string.dollar_symbol) + newBalance);
                 }
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
 
         buySellButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(balance != null) {//safe check to avoid failure
+                if (balance != null) {//safe check to avoid failure
                     if (seekBar.getProgress() > 0) {
-                        Toast.makeText(getActivity(),
-                        "Purchase confirmed for " +seekBar.getProgress()+ " "+currency.getSymbol()+
-                        " for " + costText.getText(), Toast.LENGTH_SHORT).show();
-                        fireStoreUtil.buyCurrency(currency, seekBar.getProgress());
+                        if (isBuySheet) {
+                            Toast.makeText(getActivity(),
+                                    "Purchase confirmed for " + seekBar.getProgress() + " " + currency.getSymbol() +
+                                            " for " + costText.getText(), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getActivity(),
+                                    "Sale confirmed for " + seekBar.getProgress() + " " + currency.getSymbol() +
+                                            " for " + costText.getText(), Toast.LENGTH_SHORT).show();
+                        }
+                        fireStoreUtil.buySellCurrency(currency, seekBar.getProgress(), isBuySheet);
                         dismiss();
                     }
                 }
@@ -148,7 +184,7 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(balanceListener != null)
+        if (balanceListener != null)
             balanceListener.remove();
     }
 }

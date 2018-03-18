@@ -42,7 +42,6 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
         holder.symbolView.setText(currency.getSymbol());
         holder.nameView.setText(currency.getName());
         holder.valueView.setText(String.valueOf(currency.getCurrentValue()));
-        holder.ownedAmountView.setText(String.valueOf(currency.getOwned()));
         if (currency.getVariation() >= 0) {
             holder.variationView.setText("+" + currency.getVariation() + "%");
         } else {
@@ -65,7 +64,7 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        TextView symbolView, nameView, valueView, variationView, ownedAmountView;
+        TextView symbolView, nameView, valueView, variationView;
         View card;
 
         ViewHolder(View view) {
@@ -75,7 +74,6 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
             nameView = view.findViewById(R.id.currency_name);
             valueView = view.findViewById(R.id.value);
             variationView = view.findViewById(R.id.variation);
-            ownedAmountView = view.findViewById(R.id.owned_amt);
         }
     }
 }

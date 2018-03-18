@@ -51,8 +51,10 @@
     <string name="value">Value:\ </string>
     <string name="variation">Variation</string>
     <string name="variation_over_time">Price variation over time</string>
-    <string name="select_quantity_to_buy">Select quantity to buy</string>
+    <string name="select_quantity">Select quantity</string>
     <string name="cost">Cost</string>
     <string name="balance_after_purchase">Balance after purchase</string>
     <string name="confirm_purchase">Confirm purchase</string>
+    <string name="total">Total</string>
+    <string name="confirm_sale">Confirm sale</string>
 </resources>

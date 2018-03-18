@@ -21,16 +21,14 @@ public class Currency implements Parcelable {
     };
     String id, symbol, name, desc;
     double currentValue, variation, factor, circulation;
-    int owned;
 
-    public Currency(String id, String symbol, String name, String desc, double currentValue, double variation, int owned, double factor, double circulation) {
+    public Currency(String id, String symbol, String name, String desc, double currentValue, double variation, double factor, double circulation) {
         this.id = id;
         this.symbol = symbol;
         this.name = name;
         this.desc = desc;
         this.currentValue = currentValue;
         this.variation = variation;
-        this.owned = owned;
         this.factor = factor;
         this.circulation = circulation;
     }
@@ -44,7 +42,6 @@ public class Currency implements Parcelable {
         variation = in.readDouble();
         factor = in.readDouble();
         circulation = in.readDouble();
-        owned = in.readInt();
     }
 
     @Override
@@ -55,7 +52,6 @@ public class Currency implements Parcelable {
         dest.writeString(desc);
         dest.writeDouble(currentValue);
         dest.writeDouble(variation);
-        dest.writeInt(owned);
         dest.writeDouble(factor);
         dest.writeDouble(circulation);
     }
@@ -106,14 +102,6 @@ public class Currency implements Parcelable {
 
     public void setVariation(double variation) {
         this.variation = variation;
-    }
-
-    public int getOwned() {
-        return owned;
-    }
-
-    public void setOwned(int owned) {
-        this.owned = owned;
     }
 
     public double getFactor() {

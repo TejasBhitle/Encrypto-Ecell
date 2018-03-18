@@ -1,7 +1,6 @@
 package spit.ecell.encrypto;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -32,11 +31,11 @@ import spit.ecell.encrypto.models.Currency;
 
 import static spit.ecell.encrypto.Constants.FS_CURRENCIES_KEY;
 import static spit.ecell.encrypto.Constants.FS_PURCHASED_CURRENCIES_KEY;
+import static spit.ecell.encrypto.Constants.FS_QUANTITY_KEY;
 import static spit.ecell.encrypto.Constants.FS_TIMESTAMP;
 import static spit.ecell.encrypto.Constants.FS_TRANSACTIONS_KEY;
 import static spit.ecell.encrypto.Constants.FS_USERS_KEY;
 import static spit.ecell.encrypto.Constants.FS_USER_BALANCE_KEY;
-import static spit.ecell.encrypto.Constants.PREFS;
 
 /**
  * Created by tejas on 18/3/18.
@@ -97,7 +96,6 @@ public class FireStoreUtil {
                         if (task.isSuccessful()) {
                             Log.e(TAG, "Success");
                             final ArrayList<Currency> currencies = new ArrayList<>();
-                            final SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
                             for (DocumentSnapshot document : task.getResult()) {
                                 Map<String, Object> object = document.getData();
                                 Log.e(TAG, object.toString());
@@ -109,8 +107,7 @@ public class FireStoreUtil {
                                 Double variation = Double.parseDouble(object.get("variation").toString());
                                 Double circulation = Double.parseDouble(object.get("circulation").toString());
                                 Double factor = Double.parseDouble(object.get("variation-factor").toString());
-                                Integer owned = prefs.getInt("OWNED_" + symbol, 0);
-                                currencies.add(new Currency(id, symbol, name, desc, value, variation, owned, factor, circulation));
+                                currencies.add(new Currency(id, symbol, name, desc, value, variation, factor, circulation));
                             }
                             if (callbacks != null)
                                 callbacks.onSuccess(currencies);
@@ -150,7 +147,6 @@ public class FireStoreUtil {
                 }
 
                 final ArrayList<Currency> currencies = new ArrayList<>();
-                final SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
 
                 for (DocumentSnapshot document : snapshot) {
                     Map<String, Object> object = document.getData();
@@ -163,8 +159,7 @@ public class FireStoreUtil {
                     Double variation = Double.parseDouble(object.get("variation").toString());
                     Double circulation = Double.parseDouble(object.get("circulation").toString());
                     Double factor = Double.parseDouble(object.get("variation-factor").toString());
-                    Integer owned = prefs.getInt("OWNED_" + symbol, 0);
-                    currencies.add(new Currency(id, symbol, name, desc, value, variation, owned, factor, circulation));
+                    currencies.add(new Currency(id, symbol, name, desc, value, variation, factor, circulation));
                 }
                 if (callbacks != null)
                     callbacks.onSuccess(currencies);
@@ -174,8 +169,6 @@ public class FireStoreUtil {
 
     public ListenerRegistration getCurrencyRealTimeById(String id,
                                                         final FireStoreUtilCallbacks callbacks) {
-
-        final SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference currencyRef = db.collection(FS_CURRENCIES_KEY).document(id);
 
@@ -191,8 +184,7 @@ public class FireStoreUtil {
                 Double variation = Double.parseDouble(object.get("variation").toString());
                 Double circulation = Double.parseDouble(object.get("circulation").toString());
                 Double factor = Double.parseDouble(object.get("variation-factor").toString());
-                Integer owned = prefs.getInt("OWNED_" + symbol, 0);
-                Currency currency = new Currency(id, symbol, name, desc, value, variation, owned, factor, circulation);
+                Currency currency = new Currency(id, symbol, name, desc, value, variation, factor, circulation);
                 if (callbacks != null) {
                     callbacks.onSuccess(currency);
                 }
@@ -200,10 +192,12 @@ public class FireStoreUtil {
         });
     }
 
-    public void buyCurrency(final Currency currency, final double quantity) {
+    public void buySellCurrency(final Currency currency, double qty, boolean isBuy) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
         String userId = user.getUid();
+
+        final double quantity = (isBuy) ? qty : -qty;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -328,6 +322,50 @@ public class FireStoreUtil {
                         callbacks.onFailure(null);
                     }
                 });
+    }
+
+    public void getOwnedCurrencyQuantity(String currencyId, final FireStoreUtilCallbacks callbacks) {
+
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null) {
+            Log.d(TAG, "user is null");
+            return;
+        }
+
+        db.collection(FS_USERS_KEY).document(user.getUid())
+                .collection(FS_PURCHASED_CURRENCIES_KEY).document(currencyId)
+                .get()
+                .addOnCompleteListener(
+                        new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                double quantity = 0;
+                                if (task.isSuccessful()) {
+                                    Log.e(TAG, "Success");
+                                    DocumentSnapshot document = task.getResult();
+                                    Object object = document.get(FS_QUANTITY_KEY);
+                                    if (object != null) {
+                                        quantity = Double.parseDouble(object.toString());
+                                    }
+                                } else {
+                                    Log.e(TAG, "Error getting documents: ", task.getException());
+                                }
+                                if (callbacks != null)
+                                    callbacks.onSuccess(quantity);
+                            }
+                        }
+                )
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (callbacks != null)
+                            callbacks.onFailure(null);
+                    }
+                });
+
+
     }
 
     public interface FireStoreUtilCallbacks {
