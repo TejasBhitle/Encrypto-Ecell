@@ -17,10 +17,10 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import spit.ecell.encrypto.FireStoreUtil;
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Transaction;
 import spit.ecell.encrypto.ui.adapters.TransactionAdapter;
+import spit.ecell.encrypto.util.FireStoreUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,7 +30,7 @@ public class TransactionsFragment extends Fragment {
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextView blankText;
-    FireStoreUtil.FireStoreUtilCallbacks callbacks = new FireStoreUtil.FireStoreUtilCallbacks() {
+    FireStoreUtils.FireStoreUtilCallbacks callbacks = new FireStoreUtils.FireStoreUtilCallbacks() {
         @Override
         public void onSuccess(Object object) {
             updateUI((ArrayList<Transaction>) object);
@@ -41,7 +41,6 @@ public class TransactionsFragment extends Fragment {
             Toast.makeText(getActivity(), "Failed to get transaction history", Toast.LENGTH_SHORT).show();
         }
     };
-    private FireStoreUtil fireStoreUtil;
 
     public TransactionsFragment() {
         // Required empty public constructor
@@ -56,19 +55,16 @@ public class TransactionsFragment extends Fragment {
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         blankText = view.findViewById(R.id.blankText);
 
-        fireStoreUtil = new FireStoreUtil(getActivity());
-
-
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 swipeRefreshLayout.setRefreshing(true);
-                fireStoreUtil.getTransactions(callbacks);
+                FireStoreUtils.getTransactions(callbacks);
             }
         });
 
         swipeRefreshLayout.setRefreshing(true);
-        fireStoreUtil.getTransactions(callbacks);
+        FireStoreUtils.getTransactions(callbacks);
 
         return view;
     }

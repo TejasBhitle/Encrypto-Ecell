@@ -17,9 +17,9 @@ import android.widget.Toast;
 
 import com.google.firebase.firestore.ListenerRegistration;
 
-import spit.ecell.encrypto.FireStoreUtil;
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Currency;
+import spit.ecell.encrypto.util.FireStoreUtils;
 
 /**
  * Created by tejas on 18/3/18.
@@ -35,7 +35,6 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
     private TextView header, valueText, costText, balanceText, quantityText, plus_minus, ownedText;
     private Button buySellButton;
     private AppCompatSeekBar seekBar;
-    private FireStoreUtil fireStoreUtil;
     private ProgressBar progressBar;
     private LinearLayout sheetLayout;
 
@@ -52,12 +51,11 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
             isBuySheet = bundle.getBoolean("isBuySheet");
         }
 
-        fireStoreUtil = new FireStoreUtil(getActivity());
-        balanceListener = fireStoreUtil.getBalance(new FireStoreUtil.FireStoreUtilCallbacks() {
+        balanceListener = FireStoreUtils.getBalance(new FireStoreUtils.FireStoreUtilCallbacks() {
             @Override
             public void onSuccess(Object object) {
                 balance = (Double) object;
-                ownedCurrencyQuantityListener = fireStoreUtil.getOwnedCurrencyQuantityRealtime(currency.getId(), new FireStoreUtil.FireStoreUtilCallbacks() {
+                ownedCurrencyQuantityListener = FireStoreUtils.getOwnedCurrencyQuantityRealtime(currency.getId(), new FireStoreUtils.FireStoreUtilCallbacks() {
                     @Override
                     public void onSuccess(Object object) {
                         ownedCurrencyQuantity = Integer.parseInt(object.toString());
@@ -167,7 +165,7 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
                         }
                         sheetLayout.setVisibility(View.INVISIBLE);
                         progressBar.setVisibility(View.VISIBLE);
-                        fireStoreUtil.buySellCurrency(currency, seekBar.getProgress(), isBuySheet);
+                        FireStoreUtils.buySellCurrency(currency, seekBar.getProgress(), isBuySheet);
                     }
                 }
             }

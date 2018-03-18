@@ -1,6 +1,5 @@
-package spit.ecell.encrypto;
+package spit.ecell.encrypto.util;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -41,16 +40,11 @@ import static spit.ecell.encrypto.Constants.FS_USER_BALANCE_KEY;
  * Created by tejas on 18/3/18.
  */
 
-public class FireStoreUtil {
+public class FireStoreUtils {
 
-    private static final String TAG = "FireStoreUtil";
-    private Context context;
+    private static final String TAG = "FireStoreUtils";
 
-    public FireStoreUtil(Context context) {
-        this.context = context;
-    }
-
-    public ListenerRegistration getBalance(final FireStoreUtilCallbacks callbacks) {
+    public static ListenerRegistration getBalance(final FireStoreUtilCallbacks callbacks) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             callbacks.onFailure("User is null");
@@ -78,7 +72,7 @@ public class FireStoreUtil {
         });
     }
 
-    public void getCurrencies(final FireStoreUtilCallbacks callbacks) {
+    public static void getCurrencies(final FireStoreUtilCallbacks callbacks) {
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -125,7 +119,7 @@ public class FireStoreUtil {
                 });
     }
 
-    public ListenerRegistration getCurrenciesRealTime(final FireStoreUtilCallbacks callbacks) {
+    public static ListenerRegistration getCurrenciesRealTime(final FireStoreUtilCallbacks callbacks) {
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -149,17 +143,21 @@ public class FireStoreUtil {
                 final ArrayList<Currency> currencies = new ArrayList<>();
 
                 for (DocumentSnapshot document : snapshot) {
-                    Map<String, Object> object = document.getData();
-                    Log.e(TAG, object.toString());
-                    String id = document.getId();
-                    String symbol = (String) object.get("symbol");
-                    String desc = (String) object.get("desc");
-                    String name = (String) object.get("name");
-                    Double value = Double.parseDouble(object.get("value-now").toString());
-                    Double variation = Double.parseDouble(object.get("variation").toString());
-                    Double circulation = Double.parseDouble(object.get("circulation").toString());
-                    Double factor = Double.parseDouble(object.get("variation-factor").toString());
-                    currencies.add(new Currency(id, symbol, name, desc, value, variation, factor, circulation));
+                    try {
+                        Map<String, Object> object = document.getData();
+                        Log.d(TAG, object.toString());
+                        String id = document.getId();
+                        String symbol = (String) object.get("symbol");
+                        String desc = (String) object.get("desc");
+                        String name = (String) object.get("name");
+                        Double value = Double.parseDouble(object.get("value-now").toString());
+                        Double variation = Double.parseDouble(object.get("variation").toString());
+                        Double circulation = Double.parseDouble(object.get("circulation").toString());
+                        Double factor = Double.parseDouble(object.get("variation-factor").toString());
+                        currencies.add(new Currency(id, symbol, name, desc, value, variation, factor, circulation));
+                    } catch (NullPointerException ex) {
+                        ex.printStackTrace();
+                    }
                 }
                 if (callbacks != null)
                     callbacks.onSuccess(currencies);
@@ -167,8 +165,8 @@ public class FireStoreUtil {
         });
     }
 
-    public ListenerRegistration getCurrencyRealTimeById(String id,
-                                                        final FireStoreUtilCallbacks callbacks) {
+    public static ListenerRegistration getCurrencyRealTimeById(String id,
+                                                               final FireStoreUtilCallbacks callbacks) {
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference currencyRef = db.collection(FS_CURRENCIES_KEY).document(id);
 
@@ -192,7 +190,7 @@ public class FireStoreUtil {
         });
     }
 
-    public void buySellCurrency(final Currency currency, double qty, boolean isBuy) {
+    public static void buySellCurrency(final Currency currency, double qty, boolean isBuy) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
         String userId = user.getUid();
@@ -245,7 +243,7 @@ public class FireStoreUtil {
 
     }
 
-    private void createTransaction(String currency_name, Double quantity, Double value, boolean isBought) {
+    private static void createTransaction(String currency_name, Double quantity, Double value, boolean isBought) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
 
@@ -278,7 +276,7 @@ public class FireStoreUtil {
                 });
     }
 
-    public void getTransactions(final FireStoreUtilCallbacks callbacks) {
+    public static void getTransactions(final FireStoreUtilCallbacks callbacks) {
         final ArrayList<spit.ecell.encrypto.models.Transaction> transactions = new ArrayList<>();
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -323,7 +321,7 @@ public class FireStoreUtil {
                 });
     }
 
-    public void getOwnedCurrencyQuantity(String currencyId, final FireStoreUtilCallbacks callbacks) {
+    public static void getOwnedCurrencyQuantity(String currencyId, final FireStoreUtilCallbacks callbacks) {
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -368,7 +366,7 @@ public class FireStoreUtil {
                 });
     }
 
-    public ListenerRegistration getOwnedCurrencyQuantityRealtime(String currencyId, final FireStoreUtilCallbacks callbacks) {
+    public static ListenerRegistration getOwnedCurrencyQuantityRealtime(String currencyId, final FireStoreUtilCallbacks callbacks) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             callbacks.onFailure("User is null");
@@ -380,17 +378,21 @@ public class FireStoreUtil {
         return ref.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
-                HashMap<String, Object> map = (HashMap<String, Object>) snapshot.getData();
+                if (snapshot.exists()) {
+                    HashMap<String, Object> map = (HashMap<String, Object>) snapshot.getData();
                 /*
                  If the decimal places are .00 then firebase stores them as long
                  otherwise its double
                 */
-                try {
-                    int owned = (int) Double.parseDouble(map.get(FS_QUANTITY_KEY).toString());
-                    callbacks.onSuccess(owned);
-                } catch (ClassCastException exp) {
-                    int owned = ((Long) map.get(FS_QUANTITY_KEY)).intValue();
-                    callbacks.onSuccess(owned);
+                    try {
+                        int owned = (int) Double.parseDouble(map.get(FS_QUANTITY_KEY).toString());
+                        callbacks.onSuccess(owned);
+                    } catch (ClassCastException exp) {
+                        int owned = ((Long) map.get(FS_QUANTITY_KEY)).intValue();
+                        callbacks.onSuccess(owned);
+                    }
+                } else {
+                    callbacks.onSuccess(0);
                 }
             }
         });

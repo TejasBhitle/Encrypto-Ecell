@@ -14,12 +14,11 @@ import android.widget.TextView;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import spit.ecell.encrypto.Constants;
-import spit.ecell.encrypto.FireStoreUtil;
 import spit.ecell.encrypto.R;
+import spit.ecell.encrypto.util.FireStoreUtils;
 
 public class ProfileFragment extends Fragment {
     SharedPreferences userPrefs;
-    private FireStoreUtil fireStoreUtil;
     private Double balance;
     private ListenerRegistration balanceListener;
 
@@ -32,7 +31,6 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        fireStoreUtil = new FireStoreUtil(getActivity());
         userPrefs = view.getContext().getSharedPreferences(Constants.PREFS, Context.MODE_PRIVATE);
 
         TextView name = view.findViewById(R.id.name);
@@ -43,7 +41,7 @@ public class ProfileFragment extends Fragment {
         name.setText(full_name);
         email.setText(userPrefs.getString(Constants.USER_EMAIL, getString(R.string.email)));
 
-        balanceListener = fireStoreUtil.getBalance(new FireStoreUtil.FireStoreUtilCallbacks() {
+        balanceListener = FireStoreUtils.getBalance(new FireStoreUtils.FireStoreUtilCallbacks() {
             @Override
             public void onSuccess(Object object) {
                 balance = (Double)object;

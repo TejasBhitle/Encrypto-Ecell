@@ -3,7 +3,6 @@ package spit.ecell.encrypto.ui.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,14 +12,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
-import spit.ecell.encrypto.FireStoreUtil;
+
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Currency;
 import spit.ecell.encrypto.ui.adapters.CurrencyAdapter;
+import spit.ecell.encrypto.util.FireStoreUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,9 +28,7 @@ public class MarketFragment extends Fragment {
     private static final String TAG = "MarketFragment";
 
     private RecyclerView recyclerView;
-    //private SwipeRefreshLayout swipeRefreshLayout;
     private TextView blankText;
-    private FireStoreUtil fireStoreUtil;
     private ListenerRegistration registration;
 
     public MarketFragment() {
@@ -41,16 +38,13 @@ public class MarketFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        fireStoreUtil = new FireStoreUtil(getActivity());
 
         View view = inflater.inflate(R.layout.fragment_market, container, false);
         recyclerView = view.findViewById(R.id.market_recycler_view);
-        //swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         blankText = view.findViewById(R.id.blankText);
 
-        final FireStoreUtil.FireStoreUtilCallbacks callbacks =
-                new FireStoreUtil.FireStoreUtilCallbacks() {
+        final FireStoreUtils.FireStoreUtilCallbacks callbacks =
+                new FireStoreUtils.FireStoreUtilCallbacks() {
 
             @Override
             public void onSuccess(Object object) {
@@ -63,16 +57,7 @@ public class MarketFragment extends Fragment {
             }
         };
 
-        /*swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-
-            @Override
-            public void onRefresh() {
-                swipeRefreshLayout.setRefreshing(true);
-                //registration = fireStoreUtil.getCurrenciesRealtime(callbacks);
-            }
-        });
-        swipeRefreshLayout.setRefreshing(true);*/
-        registration = fireStoreUtil.getCurrenciesRealTime(callbacks);
+        registration = FireStoreUtils.getCurrenciesRealTime(callbacks);
         return view;
     }
 
@@ -85,7 +70,6 @@ public class MarketFragment extends Fragment {
         } else {
             blankText.setVisibility(View.VISIBLE);
         }
-        //swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override

@@ -11,16 +11,15 @@ import android.widget.Toast;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import spit.ecell.encrypto.Constants;
-import spit.ecell.encrypto.FireStoreUtil;
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Currency;
 import spit.ecell.encrypto.ui.fragments.BuySellBottomSheetFragment;
+import spit.ecell.encrypto.util.FireStoreUtils;
 
 public class CurrencyDetailActivity extends AppCompatActivity {
     private Currency currency;
     private SharedPreferences preferences;
     private ListenerRegistration currencyListener;
-    private FireStoreUtil fireStoreUtil;
 
     private TextView descriptionView, symbol, variation, value;
 
@@ -64,10 +63,9 @@ public class CurrencyDetailActivity extends AppCompatActivity {
             }
         });
 
-        fireStoreUtil = new FireStoreUtil(this);
-        currencyListener = fireStoreUtil.getCurrencyRealTimeById(
+        currencyListener = FireStoreUtils.getCurrencyRealTimeById(
                 currency.getId(),
-                new FireStoreUtil.FireStoreUtilCallbacks() {
+                new FireStoreUtils.FireStoreUtilCallbacks() {
                     @Override
                     public void onSuccess(Object object) {
                         updateUI((Currency) object);
