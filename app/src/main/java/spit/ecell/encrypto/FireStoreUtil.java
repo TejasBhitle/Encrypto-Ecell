@@ -31,6 +31,8 @@ import java.util.Map;
 
 import spit.ecell.encrypto.models.Currency;
 
+import static spit.ecell.encrypto.Constants.*;
+
 /**
  * Created by tejas on 18/3/18.
  */
@@ -50,6 +52,34 @@ public class FireStoreUtil {
         void onFailure(Object object);
     }
 
+    public ListenerRegistration getBalance(final FireStoreUtilCallbacks callbacks){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user == null){
+            callbacks.onFailure("User is null");
+        }
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        DocumentReference userRef = db.collection(FS_USERS_KEY).document(user.getUid());
+        return userRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
+                HashMap<String,Object> map = (HashMap<String, Object>)snapshot.getData();
+
+                /*
+                 If the decimal places are .00 then firebase stores them as long
+                 otherwise its double
+                */
+                try {
+                    Double balance = (Double) map.get(FS_USER_BALANCE_KEY);
+                    callbacks.onSuccess(balance);
+                }catch (ClassCastException exp){
+                    Double balance = ((Long)map.get(FS_USER_BALANCE_KEY)).doubleValue();
+                    callbacks.onSuccess(balance);
+                }
+            }
+        });
+    }
+
     public void getCurrencies(final FireStoreUtilCallbacks callbacks) {
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -60,7 +90,7 @@ public class FireStoreUtil {
             return;
         }
 
-        db.collection(Constants.FS_CURRENCIES_KEY)
+        db.collection(FS_CURRENCIES_KEY)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -68,7 +98,7 @@ public class FireStoreUtil {
                         if (task.isSuccessful()) {
                             Log.e(TAG, "Success");
                             final ArrayList<Currency> currencies = new ArrayList<>();
-                            final SharedPreferences prefs = context.getSharedPreferences(Constants.PREFS, Context.MODE_PRIVATE);
+                            final SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
                             for (DocumentSnapshot document : task.getResult()) {
                                 Map<String, Object> object = document.getData();
                                 Log.e(TAG, object.toString());
@@ -109,7 +139,7 @@ public class FireStoreUtil {
             return null;
         }
 
-        CollectionReference collectionRef = db.collection(Constants.FS_CURRENCIES_KEY);
+        CollectionReference collectionRef = db.collection(FS_CURRENCIES_KEY);
 
         return collectionRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -121,7 +151,7 @@ public class FireStoreUtil {
                 }
 
                 final ArrayList<Currency> currencies = new ArrayList<>();
-                final SharedPreferences prefs = context.getSharedPreferences(Constants.PREFS, Context.MODE_PRIVATE);
+                final SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
 
                 for (DocumentSnapshot document : snapshot) {
                     Map<String, Object> object = document.getData();
@@ -146,9 +176,9 @@ public class FireStoreUtil {
     public ListenerRegistration getCurrencyRealTimeById(String id,
                                                         final FireStoreUtilCallbacks callbacks){
 
-        final SharedPreferences prefs = context.getSharedPreferences(Constants.PREFS, Context.MODE_PRIVATE);
+        final SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference currencyRef = db.collection(Constants.FS_CURRENCIES_KEY).document(id);
+        DocumentReference currencyRef = db.collection(FS_CURRENCIES_KEY).document(id);
 
         return currencyRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -179,16 +209,16 @@ public class FireStoreUtil {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         /*change balance*/
-        final DocumentReference userRef = db.collection(Constants.FS_USERS_KEY)
+        final DocumentReference userRef = db.collection(FS_USERS_KEY)
                 .document(userId);
         db.runTransaction(new Transaction.Function<Void>() {
             @Nullable
             @Override
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 DocumentSnapshot snapshot = transaction.get(userRef);
-                double balance = snapshot.getDouble(Constants.FS_USER_BALANCE_KEY);
+                double balance = snapshot.getDouble(FS_USER_BALANCE_KEY);
                 balance -= quantity*currency.getCurrentValue();
-                transaction.update(userRef, Constants.FS_USER_BALANCE_KEY, balance);
+                transaction.update(userRef, FS_USER_BALANCE_KEY, balance);
 
                 return null;
             }
@@ -196,7 +226,7 @@ public class FireStoreUtil {
 
         /*purchase currency*/
         final DocumentReference purchased_currencies =
-                userRef.collection(Constants.FS_PURCHASED_CURRENCIES_KEY)
+                userRef.collection(FS_PURCHASED_CURRENCIES_KEY)
                         .document(currency.getId());
         db.runTransaction(new Transaction.Function<Void>() {
             @Nullable
@@ -238,9 +268,9 @@ public class FireStoreUtil {
 
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection(Constants.FS_USERS_KEY)
+        db.collection(FS_USERS_KEY)
                 .document(user.getUid())
-                .collection(Constants.FS_TRANSACTIONS_KEY)
+                .collection(FS_TRANSACTIONS_KEY)
                 .add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
@@ -265,9 +295,9 @@ public class FireStoreUtil {
             Log.d(TAG,"user is null");
             return;
         }
-        db.collection(Constants.FS_USERS_KEY)
+        db.collection(FS_USERS_KEY)
                 .document(user.getUid())
-                .collection(Constants.FS_TRANSACTIONS_KEY)
+                .collection(FS_TRANSACTIONS_KEY)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
