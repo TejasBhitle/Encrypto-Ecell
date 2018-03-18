@@ -18,14 +18,17 @@ import spit.ecell.encrypto.Constants;
 import spit.ecell.encrypto.FireStoreUtil;
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Currency;
+import spit.ecell.encrypto.ui.fragments.BuySellBottomSheetFragment;
 
 public class CurrencyDetailActivity extends AppCompatActivity {
-    Currency currency;
-    SharedPreferences preferences;
-    ListenerRegistration currencyListener;
-    FireStoreUtil fireStoreUtil;
+    private Currency currency;
+    private SharedPreferences preferences;
+    private ListenerRegistration currencyListener;
+    private FireStoreUtil fireStoreUtil;
 
-    TextView descriptionView,symbol,variation,value;
+    private TextView descriptionView,symbol,variation,value;
+
+    private BuySellBottomSheetFragment buySellBottomSheetFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +51,7 @@ public class CurrencyDetailActivity extends AppCompatActivity {
         }
 
         currency = extras.getParcelable(Constants.FIRESTORE_CURRENCIES_KEY);
+        buySellBottomSheetFragment = new BuySellBottomSheetFragment();
 
 
         findViewById(R.id.buyButton).setOnClickListener(new View.OnClickListener() {
@@ -95,64 +99,26 @@ public class CurrencyDetailActivity extends AppCompatActivity {
     }
 
     private void onBuyButtonPressed(){
-        final BottomSheetDialog bottomSheetDialog =
-                new BottomSheetDialog(CurrencyDetailActivity.this, R.style.BottomSheet_Light);
-        bottomSheetDialog.setContentView(R.layout.bottom_sheet_buy);
-
-        TextView header = bottomSheetDialog.findViewById(R.id.buy_header);
-        TextView valueText = bottomSheetDialog.findViewById(R.id.value);
-        final TextView costText = bottomSheetDialog.findViewById(R.id.cost);
-        final TextView balanceText = bottomSheetDialog.findViewById(R.id.balance);
-        final AppCompatSeekBar seekBar = bottomSheetDialog.findViewById(R.id.seekbar);
-
-        final double balance = preferences.getFloat(Constants.FIRESTORE_USER_BALANCE_KEY, 0);
-        final double value = currency.getCurrentValue();
-
-        // TODO: Should probably fetch values from server
-        header.append(" " + currency.getSymbol());
-        valueText.setText(getString(R.string.dollar_symbol) + value);
-        costText.setText("0");
-        balanceText.setText(getString(R.string.dollar_symbol) + balance);
-
-        seekBar.setMax((int) (balance / value));
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser) {
-                    double cost = value * progress;
-                    double newBalance = (balance - cost);
-                    costText.setText(getString(R.string.dollar_symbol) + cost);
-                    balanceText.setText(getString(R.string.dollar_symbol) + newBalance);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        bottomSheetDialog.findViewById(R.id.confirm_purchase).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (seekBar.getProgress() > 0) {
-                    // TODO: Buy request
-                    Toast.makeText(CurrencyDetailActivity.this,
-                            "Purchase confirmed for " + seekBar.getProgress() + " " + currency.getSymbol() +
-                                    " for " + costText.getText(), Toast.LENGTH_SHORT).show();
-                }
-                bottomSheetDialog.dismiss();
-            }
-        });
-        bottomSheetDialog.show();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("currency",currency);
+        bundle.putBoolean("isBuySheet",true);
+        buySellBottomSheetFragment.setArguments(bundle);
+        buySellBottomSheetFragment.show(
+                getSupportFragmentManager(),
+                buySellBottomSheetFragment.getTag()
+        );
     }
 
-    private void onSellButtonPressed(){}
+    private void onSellButtonPressed(){
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("currency",currency);
+        bundle.putBoolean("isBuySheet",false);
+        buySellBottomSheetFragment.setArguments(bundle);
+        buySellBottomSheetFragment.show(
+                getSupportFragmentManager(),
+                buySellBottomSheetFragment.getTag()
+        );
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
