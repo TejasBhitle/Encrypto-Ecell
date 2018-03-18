@@ -15,6 +15,7 @@ import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Currency;
 import spit.ecell.encrypto.ui.fragments.BuySellBottomSheetFragment;
 import spit.ecell.encrypto.util.FireStoreUtils;
+import spit.ecell.encrypto.util.NetworkUtils;
 
 public class CurrencyDetailActivity extends AppCompatActivity {
     private Currency currency;
@@ -112,6 +113,10 @@ public class CurrencyDetailActivity extends AppCompatActivity {
     }
 
     private void onBuyButtonPressed() {
+        if (!NetworkUtils.isNetworkConnected(this)) {
+            Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (!buySellBottomSheetFragment.isAdded()) {
             Bundle bundle = new Bundle();
             bundle.putParcelable("currency", currency);
@@ -126,6 +131,10 @@ public class CurrencyDetailActivity extends AppCompatActivity {
     }
 
     private void onSellButtonPressed() {
+        if (!NetworkUtils.isNetworkConnected(this)) {
+            Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (!buySellBottomSheetFragment.isAdded()) {
             Bundle bundle = new Bundle();
             bundle.putParcelable("currency", currency);

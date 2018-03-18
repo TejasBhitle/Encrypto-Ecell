@@ -20,6 +20,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Currency;
 import spit.ecell.encrypto.util.FireStoreUtils;
+import spit.ecell.encrypto.util.NetworkUtils;
 
 /**
  * Created by tejas on 18/3/18.
@@ -142,6 +143,10 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
         buySellButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!NetworkUtils.isNetworkConnected(getActivity())) {
+                    Toast.makeText(getActivity(), "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (balance != null) {//safe check to avoid failure
                     if (seekBar.getProgress() > 0) {
                         if (isBuySheet) {
