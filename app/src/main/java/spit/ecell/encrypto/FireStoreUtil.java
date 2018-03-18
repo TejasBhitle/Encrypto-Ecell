@@ -25,6 +25,7 @@ import com.google.firebase.firestore.Transaction;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -251,6 +252,51 @@ public class FireStoreUtil {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.e(TAG,"transaction adding failed");
+                    }
+                });
+    }
+
+    public void getTransactions(final FireStoreUtilCallbacks callbacks){
+        final ArrayList<spit.ecell.encrypto.models.Transaction> transactions = new ArrayList<>();
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user==null){
+            Log.d(TAG,"user is null");
+            return;
+        }
+        db.collection(Constants.FS_USERS_KEY)
+                .document(user.getUid())
+                .collection(Constants.FS_TRANSACTIONS_KEY)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.e(TAG,"Success");
+                            for (DocumentSnapshot document : task.getResult()) {
+                                Map<String,Object> object = document.getData();
+                                Log.e(TAG,object.toString());
+                                Map<String, Object> details = (HashMap<String,Object>)object.get("details");
+                                String name = details.get("currency-name").toString();
+                                Double quantity = Double.parseDouble(details.get("purchased-quantity").toString());
+                                Double value = Double.parseDouble(details.get("purchased-value").toString());
+                                boolean isBought = Boolean.parseBoolean( details.get("isBought").toString());
+                                Date timestamp = (Date)object.get("timestamp");
+                                transactions.add(new spit.ecell.encrypto.models.Transaction(name,value,quantity,isBought,timestamp));
+
+                            }
+                            callbacks.onSuccess(transactions);
+
+                        } else {
+                            Log.e(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callbacks.onFailure(null);
                     }
                 });
     }

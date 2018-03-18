@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import spit.ecell.encrypto.Constants;
+import spit.ecell.encrypto.FireStoreUtil;
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Transaction;
 import spit.ecell.encrypto.ui.adapters.TransactionAdapter;
@@ -44,6 +45,19 @@ public class TransactionsFragment extends Fragment {
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextView blankText;
+    private FireStoreUtil fireStoreUtil;
+
+    FireStoreUtil.FireStoreUtilCallbacks callbacks = new FireStoreUtil.FireStoreUtilCallbacks() {
+        @Override
+        public void onSuccess(Object object) {
+            updateUI((ArrayList<Transaction>) object);
+        }
+
+        @Override
+        public void onFailure(Object object) {
+            Toast.makeText(getActivity(), "Failed to get transaction history", Toast.LENGTH_SHORT).show();
+        }
+    };
 
     public TransactionsFragment() {
         // Required empty public constructor
@@ -58,14 +72,19 @@ public class TransactionsFragment extends Fragment {
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         blankText = view.findViewById(R.id.blankText);
 
+        fireStoreUtil =  new FireStoreUtil(getActivity());
+
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getTransactions();
+                swipeRefreshLayout.setRefreshing(true);
+                fireStoreUtil.getTransactions(callbacks);
             }
         });
 
-        getTransactions();
+        swipeRefreshLayout.setRefreshing(true);
+        fireStoreUtil.getTransactions(callbacks);
 
         return view;
     }
@@ -81,51 +100,6 @@ public class TransactionsFragment extends Fragment {
             blankText.setVisibility(View.VISIBLE);
         }
         swipeRefreshLayout.setRefreshing(false);
-    }
-
-    public void getTransactions(){
-        final ArrayList<Transaction> transactions = new ArrayList<>();
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        if(user==null){
-            Log.d(TAG,"user is null");
-            return;
-        }
-        swipeRefreshLayout.setRefreshing(true);
-        db.collection(Constants.FS_USERS_KEY)
-                .document(user.getUid())
-                .collection(Constants.FS_TRANSACTIONS_KEY)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Log.e(TAG,"Success");
-                            for (DocumentSnapshot document : task.getResult()) {
-                                Map<String,Object> object = document.getData();
-                                Log.e(TAG,object.toString());
-                                Map<String, Object> details = (HashMap<String,Object>)object.get("details");
-                                String name = details.get("currency-name").toString();
-                                Double quantity = Double.parseDouble(details.get("purchased-quantity").toString());
-                                Double value = Double.parseDouble(details.get("purchased-value").toString());
-                                boolean isBought = Boolean.parseBoolean( details.get("isBought").toString());
-                                Date timestamp = (Date)object.get("timestamp");
-                                transactions.add(new Transaction(name,value,quantity,isBought,timestamp));
-
-                            }
-                            updateUI(transactions);
-                        } else {
-                            Log.e(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getActivity(), "Failed to get transaction history", Toast.LENGTH_SHORT).show();
-                    }
-                });
     }
 
 
