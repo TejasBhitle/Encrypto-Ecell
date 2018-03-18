@@ -12,16 +12,19 @@
         android:text="@string/no_currencies"
         android:visibility="gone" />
 
+    <!--
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        -->
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/market_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+    <!--
     </android.support.v4.widget.SwipeRefreshLayout>
-
+    -->
 </RelativeLayout>

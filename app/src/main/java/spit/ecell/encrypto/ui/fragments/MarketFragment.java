@@ -14,6 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.google.firebase.firestore.ListenerRegistration;
+
 import java.util.ArrayList;
 import spit.ecell.encrypto.FireStoreUtil;
 import spit.ecell.encrypto.R;
@@ -27,9 +29,10 @@ public class MarketFragment extends Fragment {
     private static final String TAG = "MarketFragment";
 
     private RecyclerView recyclerView;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    //private SwipeRefreshLayout swipeRefreshLayout;
     private TextView blankText;
     private FireStoreUtil fireStoreUtil;
+    private ListenerRegistration registration;
 
     public MarketFragment() {
         // Required empty public constructor
@@ -43,10 +46,11 @@ public class MarketFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_market, container, false);
         recyclerView = view.findViewById(R.id.market_recycler_view);
-        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+        //swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         blankText = view.findViewById(R.id.blankText);
 
-        final FireStoreUtil.FireStoreUtilCallbacks callbacks = new FireStoreUtil.FireStoreUtilCallbacks() {
+        final FireStoreUtil.FireStoreUtilCallbacks callbacks =
+                new FireStoreUtil.FireStoreUtilCallbacks() {
 
             @Override
             public void onSuccess(Object object) {
@@ -59,16 +63,16 @@ public class MarketFragment extends Fragment {
             }
         };
 
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        /*swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 
             @Override
             public void onRefresh() {
                 swipeRefreshLayout.setRefreshing(true);
-                fireStoreUtil.getCurrencies(callbacks);
+                //registration = fireStoreUtil.getCurrenciesRealtime(callbacks);
             }
         });
-        swipeRefreshLayout.setRefreshing(true);
-        fireStoreUtil.getCurrencies(callbacks);
+        swipeRefreshLayout.setRefreshing(true);*/
+        registration = fireStoreUtil.getCurrenciesRealTime(callbacks);
         return view;
     }
 
@@ -81,7 +85,13 @@ public class MarketFragment extends Fragment {
         } else {
             blankText.setVisibility(View.VISIBLE);
         }
-        swipeRefreshLayout.setRefreshing(false);
+        //swipeRefreshLayout.setRefreshing(false);
     }
 
+    @Override
+    public void onDestroy() {
+        if(registration != null)
+            registration.remove();
+        super.onDestroy();
+    }
 }

@@ -11,8 +11,13 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -88,6 +93,50 @@ public class FireStoreUtil {
                 });
     }
 
+    public ListenerRegistration getCurrenciesRealTime(final FireStoreUtilCallbacks callbacks) {
+
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null) {
+            Log.d(TAG, "user is null");
+            return null;
+        }
+
+        CollectionReference collectionRef = db.collection(Constants.FIRESTORE_CURRENCIES_KEY);
+
+        ListenerRegistration registration = collectionRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot snapshot, FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    callbacks.onFailure(null);
+                    return;
+                }
+
+                final ArrayList<Currency> currencies = new ArrayList<>();
+                final SharedPreferences prefs = context.getSharedPreferences(Constants.PREFS, Context.MODE_PRIVATE);
+
+                for (DocumentSnapshot document : snapshot) {
+                    Map<String, Object> object = document.getData();
+                    Log.e(TAG, object.toString());
+                    String id = document.getId();
+                    String symbol = (String) object.get("symbol");
+                    String desc = (String) object.get("desc");
+                    String name = (String) object.get("name");
+                    Double value = Double.parseDouble(object.get("value-now").toString());
+                    Double variation = Double.parseDouble(object.get("variation").toString());
+                    Double circulation = Double.parseDouble(object.get("circulation").toString());
+                    Double factor = Double.parseDouble(object.get("variation-factor").toString());
+                    Integer owned = prefs.getInt("OWNED_" + symbol, 0);
+                    currencies.add(new Currency(id, symbol, name, desc, value, variation, owned, factor, circulation));
+                }
+                if (callbacks != null)
+                    callbacks.onSuccess(currencies);
+            }
+        });
+        return registration;
+    }
 }
 
 
