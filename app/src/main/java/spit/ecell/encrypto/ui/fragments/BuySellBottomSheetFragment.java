@@ -28,6 +28,9 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
 
     private boolean isBuySheet;
     private Currency currency;
+    private TextView header,valueText,costText,balanceText;
+    private AppCompatSeekBar seekBar;
+    private SharedPreferences preferences;
 
     public BuySellBottomSheetFragment(){}
 
@@ -47,19 +50,38 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.bottom_sheet_buy,container,false);
 
-        TextView header = view.findViewById(R.id.buy_header);
-        TextView valueText = view.findViewById(R.id.value);
-        final TextView costText = view.findViewById(R.id.cost);
-        final TextView balanceText = view.findViewById(R.id.balance);
-        final AppCompatSeekBar seekBar = view.findViewById(R.id.seekbar);
+        header = view.findViewById(R.id.buy_header);
+        valueText = view.findViewById(R.id.value);
+        costText = view.findViewById(R.id.cost);
+        balanceText = view.findViewById(R.id.balance);
+        seekBar = view.findViewById(R.id.seekbar);
 
+        preferences = getActivity().getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
+        updateUI(currency);
 
-        SharedPreferences preferences = getActivity().getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
+        view.findViewById(R.id.confirm_purchase).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (seekBar.getProgress() > 0) {
+                    // TODO: Buy request
+                    Toast.makeText(getActivity(),
+                            "Purchase confirmed for " + seekBar.getProgress() + " " + currency.getSymbol() +
+                                    " for " + costText.getText(), Toast.LENGTH_SHORT).show();
+                }
+                //TODO: ->view.dismiss();
+
+            }
+        });
+
+        return view;
+    }
+
+    public void updateUI(final Currency currency){
+        this.currency = currency;
         final double balance = preferences.getFloat(Constants.FIRESTORE_USER_BALANCE_KEY, 0);
         final double value = currency.getCurrentValue();
 
-        // TODO: Should probably fetch values from server
-        header.append(" " + currency.getSymbol());
+        header.setText(" " + currency.getSymbol());
         valueText.setText(getString(R.string.dollar_symbol) + value);
         costText.setText("0");
         balanceText.setText(getString(R.string.dollar_symbol) + balance);
@@ -87,24 +109,6 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
             }
         });
 
-        view.findViewById(R.id.confirm_purchase).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (seekBar.getProgress() > 0) {
-                    // TODO: Buy request
-                    Toast.makeText(getActivity(),
-                            "Purchase confirmed for " + seekBar.getProgress() + " " + currency.getSymbol() +
-                                    " for " + costText.getText(), Toast.LENGTH_SHORT).show();
-                }
-                //TODO: ->view.dismiss();
-
-            }
-        });
-        
-        return view;
-    }
-
-    private void updateUI(Currency currency){
 
     }
 }

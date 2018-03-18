@@ -96,6 +96,9 @@ public class CurrencyDetailActivity extends AppCompatActivity {
             variation.setText(currency.getVariation() + "%");
             variation.setBackgroundResource(R.drawable.border_rounded_red);
         }
+        if (buySellBottomSheetFragment.isVisible()){
+            buySellBottomSheetFragment.updateUI(currency);
+        }
     }
 
     private void onBuyButtonPressed(){
