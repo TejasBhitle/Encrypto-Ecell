@@ -22,7 +22,7 @@ public class CurrencyDetailActivity extends AppCompatActivity {
     private ListenerRegistration currencyListener;
     private FireStoreUtil fireStoreUtil;
 
-    private TextView descriptionView,symbol,variation,value;
+    private TextView descriptionView, symbol, variation, value;
 
     private BuySellBottomSheetFragment buySellBottomSheetFragment;
 
@@ -70,7 +70,7 @@ public class CurrencyDetailActivity extends AppCompatActivity {
                 new FireStoreUtil.FireStoreUtilCallbacks() {
                     @Override
                     public void onSuccess(Object object) {
-                        updateUI((Currency)object);
+                        updateUI((Currency) object);
                     }
 
                     @Override
@@ -81,7 +81,7 @@ public class CurrencyDetailActivity extends AppCompatActivity {
         );
     }
 
-    private void updateUI(Currency currency){
+    private void updateUI(Currency currency) {
         setTitle(currency.getName());
         descriptionView.setText(currency.getDesc());
         symbol.setText(currency.getSymbol());
@@ -92,36 +92,40 @@ public class CurrencyDetailActivity extends AppCompatActivity {
             variation.setText(currency.getVariation() + "%");
             variation.setBackgroundResource(R.drawable.border_rounded_red);
         }
-        if (buySellBottomSheetFragment.isVisible()){
+        if (buySellBottomSheetFragment.isVisible()) {
             buySellBottomSheetFragment.updateUI(currency);
         }
     }
 
-    private void onBuyButtonPressed(){
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("currency",currency);
-        bundle.putBoolean("isBuySheet",true);
-        buySellBottomSheetFragment.setArguments(bundle);
-        buySellBottomSheetFragment.show(
-                getSupportFragmentManager(),
-                buySellBottomSheetFragment.getTag()
-        );
+    private void onBuyButtonPressed() {
+        if (!buySellBottomSheetFragment.isAdded()) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("currency", currency);
+            bundle.putBoolean("isBuySheet", true);
+            buySellBottomSheetFragment.setArguments(bundle);
+            buySellBottomSheetFragment.show(
+                    getSupportFragmentManager(),
+                    buySellBottomSheetFragment.getTag()
+            );
+        }
     }
 
-    private void onSellButtonPressed(){
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("currency",currency);
-        bundle.putBoolean("isBuySheet",false);
-        buySellBottomSheetFragment.setArguments(bundle);
-        buySellBottomSheetFragment.show(
-                getSupportFragmentManager(),
-                buySellBottomSheetFragment.getTag()
-        );
+    private void onSellButtonPressed() {
+        if (!buySellBottomSheetFragment.isAdded()) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("currency", currency);
+            bundle.putBoolean("isBuySheet", false);
+            buySellBottomSheetFragment.setArguments(bundle);
+            buySellBottomSheetFragment.show(
+                    getSupportFragmentManager(),
+                    buySellBottomSheetFragment.getTag()
+            );
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
                 break;
@@ -131,7 +135,7 @@ public class CurrencyDetailActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if(currencyListener != null)
+        if (currencyListener != null)
             currencyListener.remove();
         super.onDestroy();
     }
