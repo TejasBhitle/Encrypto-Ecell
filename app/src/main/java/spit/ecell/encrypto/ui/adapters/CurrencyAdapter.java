@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import spit.ecell.encrypto.Constants;
@@ -39,13 +40,14 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final Currency currency = currencies.get(position);
+        DecimalFormat formatter = new DecimalFormat(".##");
         holder.symbolView.setText(currency.getSymbol());
         holder.nameView.setText(currency.getName());
         holder.valueView.setText(String.valueOf(currency.getCurrentValue()));
         if (currency.getVariation() >= 0) {
-            holder.variationView.setText("+" + currency.getVariation() + "%");
+            holder.variationView.setText("+" + formatter.format(currency.getVariation()) + "%");
         } else {
-            holder.variationView.setText(currency.getVariation() + "%");
+            holder.variationView.setText(formatter.format(currency.getVariation()) + "%");
             holder.variationView.setBackgroundResource(R.drawable.border_rounded_red);
         }
         holder.card.setOnClickListener(new View.OnClickListener() {

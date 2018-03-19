@@ -415,6 +415,19 @@ public class FireStoreUtils {
         });
     }
 
+    public static ListenerRegistration getCurrencyValueHistoryRealtime(String id, @NonNull final FireStoreUtilCallbacks callbacks) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        DocumentReference ref = db.collection(FS_CURRENCIES_KEY).document(id);
+        return ref.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
+                ArrayList<Float> historyValues = (ArrayList<Float>) snapshot.get("history");
+                callbacks.onSuccess(historyValues);
+            }
+        });
+    }
+
     public interface FireStoreUtilCallbacks {
         void onSuccess(Object object);
 

@@ -74,13 +74,20 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/value"
                             style="@style/TextAppearance.AppCompat.Medium"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_margin="8dp"
                             android:layout_weight="1"
                             android:gravity="end"
+                            android:text="@string/dollar_symbol" />
+
+                        <TextView
+                            android:id="@+id/value"
+                            style="@style/TextAppearance.AppCompat.Medium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="8dp"
                             tools:text="1000" />
 
                         <TextView
@@ -164,6 +171,7 @@
                         android:textStyle="bold" />
 
                     <lecho.lib.hellocharts.view.LineChartView
+                        android:id="@+id/chart"
                         android:layout_width="match_parent"
                         android:layout_height="280dp" />
 

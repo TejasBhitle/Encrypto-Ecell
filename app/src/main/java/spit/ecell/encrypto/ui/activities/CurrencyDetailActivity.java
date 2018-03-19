@@ -1,6 +1,5 @@
 package spit.ecell.encrypto.ui.activities;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -10,6 +9,14 @@ import android.widget.Toast;
 
 import com.google.firebase.firestore.ListenerRegistration;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import lecho.lib.hellocharts.model.Line;
+import lecho.lib.hellocharts.model.LineChartData;
+import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.view.LineChartView;
 import spit.ecell.encrypto.Constants;
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Currency;
@@ -19,11 +26,12 @@ import spit.ecell.encrypto.util.NetworkUtils;
 
 public class CurrencyDetailActivity extends AppCompatActivity {
     private Currency currency;
-    private SharedPreferences preferences;
-    private ListenerRegistration currencyListener, ownedCurrencyQuantityListener;
+    private ListenerRegistration currencyListener, ownedCurrencyQuantityListener, historyListener;
     private int ownedCurrencyQuantity = 0;
+    private DecimalFormat formatter;
 
     private TextView descriptionView, symbol, variation, value, owned;
+    private LineChartView lineChartView;
 
     private BuySellBottomSheetFragment buySellBottomSheetFragment;
 
@@ -32,13 +40,15 @@ public class CurrencyDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_currency_detail);
 
-        preferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
+        formatter = new DecimalFormat(".##");
 
         descriptionView = findViewById(R.id.description);
         symbol = findViewById(R.id.symbol);
         variation = findViewById(R.id.variation);
         value = findViewById(R.id.value);
         owned = findViewById(R.id.owned);
+        lineChartView = findViewById(R.id.chart);
+        lineChartView.setZoomEnabled(false);
 
         Bundle extras = getIntent().getExtras();
 
@@ -93,18 +103,45 @@ public class CurrencyDetailActivity extends AppCompatActivity {
 
             }
         });
+
+        historyListener = FireStoreUtils.getCurrencyValueHistoryRealtime(currency.getId(), new FireStoreUtils.FireStoreUtilCallbacks() {
+            @Override
+            public void onSuccess(Object object) {
+                ArrayList historyValues = (ArrayList) object;
+                List<PointValue> values = new ArrayList<>();
+                for (int i = 0; i < historyValues.size(); i++) {
+                    values.add(new PointValue(i, Float.valueOf(historyValues.get(i).toString())));
+                }
+
+                Line line = new Line(values).setColor(getResources().getColor(R.color.colorPrimary))
+                        .setFilled(true)
+                        .setHasLabelsOnlyForSelected(true);
+                List<Line> lines = new ArrayList<>();
+                lines.add(line);
+
+                LineChartData data = new LineChartData();
+                data.setLines(lines);
+
+                lineChartView.setLineChartData(data);
+            }
+
+            @Override
+            public void onFailure(Object object) {
+
+            }
+        });
     }
 
     private void updateUI(Currency currency, int ownedCurrencyQuantity) {
         setTitle(currency.getName());
         descriptionView.setText(currency.getDesc());
         symbol.setText(currency.getSymbol());
-        value.setText(getString(R.string.dollar_symbol) + currency.getCurrentValue());
+        value.setText(formatter.format(currency.getCurrentValue()));
         owned.setText(String.valueOf(ownedCurrencyQuantity));
         if (currency.getVariation() >= 0) {
-            variation.setText("+" + currency.getVariation() + "%");
+            variation.setText("+" + formatter.format(currency.getVariation()) + "%");
         } else {
-            variation.setText(currency.getVariation() + "%");
+            variation.setText(formatter.format(currency.getVariation()) + "%");
             variation.setBackgroundResource(R.drawable.border_rounded_red);
         }
         if (buySellBottomSheetFragment.isVisible()) {

@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -38,9 +39,10 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Transaction data = transactions.get(position);
+        DecimalFormat formatter = new DecimalFormat(".##");
         String text = (data.isBought() ? "Bought " : "Sold ")
                 + (int) Math.abs(data.getQuantity()) + " "
-                + data.getName() + " for $" + Math.abs(data.getValue() * data.getQuantity());
+                + data.getName() + " for $" + formatter.format(Math.abs(data.getValue() * data.getQuantity()));
         holder.detailsTextView.setText(text);
 
         SimpleDateFormat localDateFormat = new SimpleDateFormat("d/MM HH:mma", Locale.getDefault());
