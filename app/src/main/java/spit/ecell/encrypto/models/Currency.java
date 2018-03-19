@@ -19,8 +19,8 @@ public class Currency implements Parcelable {
             return new Currency[size];
         }
     };
-    String id, symbol, name, desc;
-    double currentValue, variation, factor, circulation;
+    private String id, symbol, name, desc;
+    private double currentValue, variation, factor, circulation;
 
     public Currency(String id, String symbol, String name, String desc, double currentValue, double variation, double factor, double circulation) {
         this.id = id;

@@ -238,6 +238,23 @@ public class FireStoreUtils {
             }
         });
 
+        /*update currency change-this-round values*/
+        final DocumentReference currencyRef =
+                db.collection(FS_CURRENCIES_KEY)
+                        .document(currency.getId());
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+
+                DocumentSnapshot snapshot = transaction.get(currencyRef);
+                long changed = snapshot.getLong("change-this-round");
+                changed += quantity;
+                transaction.update(currencyRef, "change-this-round", changed);
+                return null;
+            }
+        });
+
         /*update transaction node*/
         createTransaction(currency.getName(), quantity, currency.getCurrentValue(), isBuy);
 
@@ -403,6 +420,7 @@ public class FireStoreUtils {
 
         void onFailure(Object object);
     }
+
 }
 
 
