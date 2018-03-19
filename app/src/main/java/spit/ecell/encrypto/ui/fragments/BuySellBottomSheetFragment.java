@@ -93,7 +93,7 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
     }
 
     public void updateUI(final Currency currency, int ownedCurrencyQuantity) {
-        final DecimalFormat formatter = new DecimalFormat(".##");
+        final DecimalFormat formatter = new DecimalFormat(".00#");
 
         this.currency = currency;
         this.ownedCurrencyQuantity = ownedCurrencyQuantity;
@@ -117,10 +117,10 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
             buySellButton.setText(R.string.confirm_sale);
         }
 
-        valueText.setText(String.valueOf(value));
+        valueText.setText(String.valueOf(formatter.format(value)));
         costText.setText("0");
         quantityText.setText("0");
-        balanceText.setText(String.valueOf(balance));
+        balanceText.setText(String.valueOf(formatter.format(balance)));
         ownedText.setText(String.valueOf(ownedCurrencyQuantity));
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

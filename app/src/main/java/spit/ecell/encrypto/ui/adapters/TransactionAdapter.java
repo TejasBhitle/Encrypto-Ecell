@@ -39,7 +39,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Transaction data = transactions.get(position);
-        DecimalFormat formatter = new DecimalFormat(".##");
+        DecimalFormat formatter = new DecimalFormat(".00");
         String text = (data.isBought() ? "Bought " : "Sold ")
                 + (int) Math.abs(data.getQuantity()) + " "
                 + data.getName() + " for $ " + formatter.format(Math.abs(data.getValue() * data.getQuantity()));
