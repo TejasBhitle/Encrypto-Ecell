@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import com.google.firebase.firestore.ListenerRegistration;
 
+import java.text.DecimalFormat;
+
 import spit.ecell.encrypto.Constants;
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.util.FireStoreUtils;
@@ -32,6 +34,7 @@ public class ProfileFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         userPrefs = view.getContext().getSharedPreferences(Constants.PREFS, Context.MODE_PRIVATE);
+        final DecimalFormat formatter = new DecimalFormat(".##");
 
         TextView name = view.findViewById(R.id.name);
         TextView email = view.findViewById(R.id.email);
@@ -44,14 +47,14 @@ public class ProfileFragment extends Fragment {
         balanceListener = FireStoreUtils.getBalance(new FireStoreUtils.FireStoreUtilCallbacks() {
             @Override
             public void onSuccess(Object object) {
-                balance = (Double)object;
-                balanceTextView.setText(getString(R.string.balance) + ": "+balance);
+                balance = (Double) object;
+                balanceTextView.setText(getString(R.string.balance) + ": " + formatter.format(balance));
             }
 
             @Override
-            public void onFailure(Object object) {}
+            public void onFailure(Object object) {
+            }
         });
-        balanceTextView.setText(getString(R.string.balance) + ": ");
 
         return view;
     }
@@ -59,7 +62,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(balanceListener != null)
+        if (balanceListener != null)
             balanceListener.remove();
     }
 }

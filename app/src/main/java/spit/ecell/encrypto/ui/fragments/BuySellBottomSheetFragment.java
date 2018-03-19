@@ -17,6 +17,8 @@ import android.widget.Toast;
 
 import com.google.firebase.firestore.ListenerRegistration;
 
+import java.text.DecimalFormat;
+
 import spit.ecell.encrypto.R;
 import spit.ecell.encrypto.models.Currency;
 import spit.ecell.encrypto.util.FireStoreUtils;
@@ -91,6 +93,8 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
     }
 
     public void updateUI(final Currency currency, int ownedCurrencyQuantity) {
+        final DecimalFormat formatter = new DecimalFormat(".##");
+
         this.currency = currency;
         this.ownedCurrencyQuantity = ownedCurrencyQuantity;
         final double value = currency.getCurrentValue();
@@ -126,8 +130,8 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
                     double cost = value * progress;
                     double newBalance = (isBuySheet) ? (balance - cost) : (balance + cost);
                     quantityText.setText(String.valueOf(progress));
-                    costText.setText(String.valueOf(cost));
-                    balanceText.setText(String.valueOf(newBalance));
+                    costText.setText(String.valueOf(formatter.format(cost)));
+                    balanceText.setText(String.valueOf(formatter.format(newBalance)));
                 }
             }
 

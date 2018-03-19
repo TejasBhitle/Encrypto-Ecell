@@ -42,7 +42,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         DecimalFormat formatter = new DecimalFormat(".##");
         String text = (data.isBought() ? "Bought " : "Sold ")
                 + (int) Math.abs(data.getQuantity()) + " "
-                + data.getName() + " for $" + formatter.format(Math.abs(data.getValue() * data.getQuantity()));
+                + data.getName() + " for $ " + formatter.format(Math.abs(data.getValue() * data.getQuantity()));
         holder.detailsTextView.setText(text);
 
         SimpleDateFormat localDateFormat = new SimpleDateFormat("d/MM HH:mma", Locale.getDefault());

@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:layout_weight="1"
-            tools:text="Bought 5 BTC for $250" />
+            tools:text="Bought 5 BTC for $ 250" />
 
         <TextView
             android:id="@+id/timestampTextView"
