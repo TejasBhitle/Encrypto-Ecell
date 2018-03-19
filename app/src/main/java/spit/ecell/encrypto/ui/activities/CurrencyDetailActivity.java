@@ -201,6 +201,8 @@ public class CurrencyDetailActivity extends AppCompatActivity {
             currencyListener.remove();
         if (ownedCurrencyQuantityListener != null)
             ownedCurrencyQuantityListener.remove();
+        if (historyListener != null)
+            historyListener.remove();
         super.onDestroy();
     }
 }
