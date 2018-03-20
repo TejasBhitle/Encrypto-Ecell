@@ -214,8 +214,41 @@ public class FireStoreUtils {
             }
         });
 
+
         /*purchase currency*/
-        final DocumentReference purchased_currencies =
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(userRef);
+                HashMap<String, Object> purchased_currencies =
+                        (HashMap<String, Object>)snapshot.get(FS_PURCHASED_CURRENCIES_KEY);
+
+                if(purchased_currencies == null){
+                    purchased_currencies = new HashMap<>();
+                    purchased_currencies.put(currency.getId(),quantity);
+                }
+                else{
+                    Double newQuantity;
+                    try {
+                        newQuantity = (Double) (purchased_currencies.get(currency.getId()));
+                    }catch (Exception e){
+                        newQuantity = ((Long)(purchased_currencies.get(currency.getId()))).doubleValue();
+                    }
+                    if(newQuantity == null) {
+                        purchased_currencies.put(currency.getId(),quantity);
+                    }
+                    else{
+                        newQuantity += quantity;
+                        purchased_currencies.put(currency.getId(),newQuantity);
+                    }
+                }
+                transaction.update(userRef,FS_PURCHASED_CURRENCIES_KEY,purchased_currencies);
+                return null;
+            }
+        });
+
+        /*final DocumentReference purchased_currencies =
                 userRef.collection(FS_PURCHASED_CURRENCIES_KEY)
                         .document(currency.getId());
         db.runTransaction(new Transaction.Function<Void>() {
@@ -231,12 +264,12 @@ public class FireStoreUtils {
                 } else {
                     Map<String, Object> map = new HashMap<>();
                     map.put("quantity", 0);
-                    /*quantity = 0 because on creating this the upper transaction runs again*/
+                    //quantity = 0 because on creating this the upper transaction runs again
                     purchased_currencies.set(map);
                 }
                 return null;
             }
-        });
+        });*/
 
         /*update currency change-this-round values*/
         final DocumentReference currencyRef =
@@ -383,36 +416,40 @@ public class FireStoreUtils {
                 });
     }
 
-    public static ListenerRegistration getOwnedCurrencyQuantityRealtime(String currencyId, final FireStoreUtilCallbacks callbacks) {
+    public static ListenerRegistration getOwnedCurrencyQuantityRealtime(final String currencyId, final FireStoreUtilCallbacks callbacks) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             callbacks.onFailure("User is null");
         }
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        DocumentReference ref = db.collection(FS_USERS_KEY).document(user.getUid())
-                .collection(FS_PURCHASED_CURRENCIES_KEY).document(currencyId);
+        DocumentReference ref = db.collection(FS_USERS_KEY).document(user.getUid());
         return ref.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
-                if (snapshot.exists()) {
+                int owned = 0;
+                if(snapshot.exists()){
                     HashMap<String, Object> map = (HashMap<String, Object>) snapshot.getData();
-                /*
-                 If the decimal places are .00 then firebase stores them as long
-                 otherwise its double
-                */
-                    try {
-                        int owned = (int) Double.parseDouble(map.get(FS_QUANTITY_KEY).toString());
-                        callbacks.onSuccess(owned);
-                    } catch (ClassCastException exp) {
-                        int owned = ((Long) map.get(FS_QUANTITY_KEY)).intValue();
-                        callbacks.onSuccess(owned);
+                    HashMap<String, Object> purchased_currencies =
+                            (HashMap<String, Object>) map.get(FS_PURCHASED_CURRENCIES_KEY);
+                    if(purchased_currencies.containsKey(currencyId)){
+                        try {
+                            owned = (int) Double.parseDouble(purchased_currencies.get(currencyId).toString());
+
+                            callbacks.onSuccess(owned);
+                        } catch (ClassCastException exp) {
+                            owned = ((Long) purchased_currencies.get(currencyId)).intValue();
+                            callbacks.onSuccess(owned);
+                        }
                     }
-                } else {
-                    callbacks.onSuccess(0);
+                    else{
+                        callbacks.onSuccess(0);
+                    }
                 }
+                Log.e(TAG,"Owned ->"+owned);
             }
         });
+
     }
 
     public static ListenerRegistration getCurrencyValueHistoryRealtime(String id, @NonNull final FireStoreUtilCallbacks callbacks) {

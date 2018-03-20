@@ -91,7 +91,9 @@ public class CurrencyDetailActivity extends AppCompatActivity {
                 }
         );
 
-        ownedCurrencyQuantityListener = FireStoreUtils.getOwnedCurrencyQuantityRealtime(currency.getId(), new FireStoreUtils.FireStoreUtilCallbacks() {
+        ownedCurrencyQuantityListener = FireStoreUtils.
+                getOwnedCurrencyQuantityRealtime(currency.getId(),
+                        new FireStoreUtils.FireStoreUtilCallbacks() {
             @Override
             public void onSuccess(Object object) {
                 ownedCurrencyQuantity = Integer.parseInt(object.toString());
@@ -104,7 +106,8 @@ public class CurrencyDetailActivity extends AppCompatActivity {
             }
         });
 
-        historyListener = FireStoreUtils.getCurrencyValueHistoryRealtime(currency.getId(), new FireStoreUtils.FireStoreUtilCallbacks() {
+        historyListener = FireStoreUtils.getCurrencyValueHistoryRealtime(
+                currency.getId(), new FireStoreUtils.FireStoreUtilCallbacks() {
             @Override
             public void onSuccess(Object object) {
                 ArrayList historyValues = (ArrayList) object;
