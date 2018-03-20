@@ -465,6 +465,41 @@ public class FireStoreUtils {
         });
     }
 
+    private void updateTotalValuation(final HashMap<String,Double> updatedCurrencyValueMap){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user ==  null)return;
+
+        final DocumentReference ref = db.collection(FS_USERS_KEY).document(user.getUid());
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(ref);
+                Double wallet_balance;
+                try{
+                    wallet_balance = Double.parseDouble((String)snapshot.get(FS_USER_BALANCE_KEY));
+                }
+                catch (Exception e){
+                    wallet_balance = ((Long)snapshot.get(FS_USER_BALANCE_KEY)).doubleValue();
+                }
+                HashMap<String,Object> purchased_curr =
+                        (HashMap<String,Object>)snapshot.get(FS_PURCHASED_CURRENCIES_KEY);
+
+                if(purchased_curr == null) return null;
+
+                Double totalValuation = wallet_balance;
+                for(String currencyId : purchased_curr.keySet()){
+                    totalValuation +=
+                            (updatedCurrencyValueMap.get(currencyId) * (Double)purchased_curr.get(currencyId));
+                }
+                transaction.update(ref,"total-valuation",totalValuation);
+                return null;
+            }
+        });
+    }
+
     public interface FireStoreUtilCallbacks {
         void onSuccess(Object object);
 
