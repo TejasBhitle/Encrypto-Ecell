@@ -294,6 +294,7 @@ public class LoginActivity extends AppCompatActivity {
         Map<String, Object> data = new HashMap<>();
         data.put(Constants.FS_USER_BALANCE_KEY, 20000.00);
         data.put(Constants.FS_USER_NAME_KEY, name);
+        data.put(Constants.FS_PURCHASED_CURRENCIES_KEY, new HashMap<String, Object>());
         db.collection(USERS).document(UID).set(data)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
