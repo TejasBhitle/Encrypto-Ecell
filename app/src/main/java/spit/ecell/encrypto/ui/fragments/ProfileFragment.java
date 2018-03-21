@@ -74,7 +74,7 @@ public class ProfileFragment extends Fragment {
         FireStoreUtils.getOwnedCurrencies(new FireStoreUtils.FireStoreUtilCallbacks() {
             @Override
             public void onSuccess(Object object) {
-                HashMap<String, Double> purchased_currencies = (HashMap<String, Double>) object;
+                HashMap<String, Long> purchased_currencies = (HashMap<String, Long>) object;
                 if (purchased_currencies.containsKey(FireStoreUtils.currencyIdNameMap.get("Bitcoin"))) {
                     ((TextView) view.findViewById(R.id.btc))
                             .setText(String.valueOf(purchased_currencies.get(FireStoreUtils.currencyIdNameMap.get("Bitcoin")).intValue()));
