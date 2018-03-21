@@ -38,6 +38,17 @@ import spit.ecell.encrypto.models.Score;
 public class FireStoreUtils {
 
     private static final String TAG = "FireStoreUtils";
+    public static HashMap<String, String> currencyIdNameMap = new HashMap<>();
+
+    // hack to quickly map currency names to IDs
+    static {
+        currencyIdNameMap.put("Bitcoin", "1DmDHDXE1M1fs2Kgqrqp");
+        currencyIdNameMap.put("Ethereum", "2D5eV6BoISuPFLTccqMQ");
+        currencyIdNameMap.put("Monero", "FlDaa4zETagXkKypq9qL");
+        currencyIdNameMap.put("Dash", "J8PG9Bb78Hp5p1JV5L6h");
+        currencyIdNameMap.put("e-Sikka", "TxOzglqZwR0vWNtfGknt");
+        currencyIdNameMap.put("Litecoin", "ziWcZm6xPTV0xDMz7dFH");
+    }
 
     public static ListenerRegistration getBalance(final FireStoreUtilCallbacks callbacks) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -271,29 +282,6 @@ public class FireStoreUtils {
             }
         });
 
-        /*final DocumentReference purchased_currencies =
-                userRef.collection(FS_PURCHASED_CURRENCIES_KEY)
-                        .document(currency.getId());
-        db.runTransaction(new Transaction.Function<Void>() {
-            @Nullable
-            @Override
-            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-
-                DocumentSnapshot snapshot = transaction.get(purchased_currencies);
-                if (snapshot.exists()) {
-                    double newQuantity = snapshot.getDouble("quantity");
-                    newQuantity += quantity;
-                    transaction.update(purchased_currencies, "quantity", newQuantity);
-                } else {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("quantity", 0);
-                    //quantity = 0 because on creating this the upper transaction runs again
-                    purchased_currencies.set(map);
-                }
-                return null;
-            }
-        });*/
-
         /*update currency change-this-round values*/
         final DocumentReference currencyRef =
                 db.collection(Constants.FS_CURRENCIES_KEY)
@@ -394,7 +382,7 @@ public class FireStoreUtils {
                 });
     }
 
-    public static void getOwnedCurrencyQuantity(String currencyId, final FireStoreUtilCallbacks callbacks) {
+    public static void getOwnedCurrencies(final FireStoreUtilCallbacks callbacks) {
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -404,37 +392,15 @@ public class FireStoreUtils {
         }
 
         db.collection(Constants.FS_USERS_KEY).document(user.getUid())
-                .collection(Constants.FS_PURCHASED_CURRENCIES_KEY).document(currencyId)
-                .get()
-                .addOnCompleteListener(
-                        new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                double quantity = 0;
-                                if (task.isSuccessful()) {
-                                    Log.e(TAG, "Success");
-                                    DocumentSnapshot document = task.getResult();
-                                    if (document.exists()) {
-                                        Object object = document.get(Constants.FS_QUANTITY_KEY);
-                                        if (object != null) {
-                                            quantity = Double.parseDouble(object.toString());
-                                        }
-                                    } else {
-                                        quantity = 0;
-                                    }
-                                } else {
-                                    Log.e(TAG, "Error getting documents: ", task.getException());
-                                }
-                                if (callbacks != null)
-                                    callbacks.onSuccess(quantity);
-                            }
-                        }
-                )
-                .addOnFailureListener(new OnFailureListener() {
+                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (callbacks != null)
-                            callbacks.onFailure(null);
+                    public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                        HashMap<String, Object> map = (HashMap<String, Object>) documentSnapshot.getData();
+                        HashMap<String, Object> purchased_currencies =
+                                (HashMap<String, Object>) map.get(Constants.FS_PURCHASED_CURRENCIES_KEY);
+                        if (callbacks != null && purchased_currencies != null) {
+                            callbacks.onSuccess(purchased_currencies);
+                        }
                     }
                 });
     }
@@ -500,6 +466,7 @@ public class FireStoreUtils {
             public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
                 ArrayList<Score> scores = new ArrayList<>();
                 for (DocumentSnapshot doc : documentSnapshots.getDocuments()) {
+                    // Blacklist admin from leaderboard and show max 10 entries
                     if (!doc.getId().equals("tNHDmIm2DBOS0k2B38HzyED7tRD2") && scores.size() != 10)
                         scores.add(new Score(doc.getString(Constants.FS_USER_NAME_KEY),
                                 Double.parseDouble(doc.get(Constants.FS_TOTAL_VALUATION).toString())));

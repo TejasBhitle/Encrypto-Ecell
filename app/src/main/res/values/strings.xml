@@ -39,7 +39,7 @@
     <string name="sell_currency_placeholder">Sell %1$s</string>
     <string name="no_transactions">No transactions to show</string>
     <string name="no_currencies">No currencies to show</string>
-    <string name="owned_label">Owned:</string>
+    <string name="owned_label">Owned:\ </string>
     <string name="dollar_symbol">$</string>
     <string name="variation_default">+0.00%</string>
     <string name="notices">Notices</string>
@@ -62,4 +62,5 @@
     <string name="confirm_sale">Confirm sale</string>
     <string name="net_worth">Net worth</string>
     <string name="net_worth_placeholder">Net worth: $ %1$s</string>
+    <string name="_owned">\ owned</string>
 </resources>

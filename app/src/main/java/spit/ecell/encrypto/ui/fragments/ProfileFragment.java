@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
 
 import spit.ecell.encrypto.Constants;
 import spit.ecell.encrypto.R;
@@ -66,6 +67,43 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onFailure(Object object) {
+            }
+        });
+
+        // the dirtiest implementation of portfolio ever
+        FireStoreUtils.getOwnedCurrencies(new FireStoreUtils.FireStoreUtilCallbacks() {
+            @Override
+            public void onSuccess(Object object) {
+                HashMap<String, Double> purchased_currencies = (HashMap<String, Double>) object;
+                if (purchased_currencies.containsKey(FireStoreUtils.currencyIdNameMap.get("Bitcoin"))) {
+                    ((TextView) view.findViewById(R.id.btc))
+                            .setText(String.valueOf(purchased_currencies.get(FireStoreUtils.currencyIdNameMap.get("Bitcoin")).intValue()));
+                }
+                if (purchased_currencies.containsKey(FireStoreUtils.currencyIdNameMap.get("Ethereum"))) {
+                    ((TextView) view.findViewById(R.id.eth))
+                            .setText(String.valueOf(purchased_currencies.get(FireStoreUtils.currencyIdNameMap.get("Ethereum")).intValue()));
+                }
+                if (purchased_currencies.containsKey(FireStoreUtils.currencyIdNameMap.get("Monero"))) {
+                    ((TextView) view.findViewById(R.id.xmr))
+                            .setText(String.valueOf(purchased_currencies.get(FireStoreUtils.currencyIdNameMap.get("Monero")).intValue()));
+                }
+                if (purchased_currencies.containsKey(FireStoreUtils.currencyIdNameMap.get("Dash"))) {
+                    ((TextView) view.findViewById(R.id.dash))
+                            .setText(String.valueOf(purchased_currencies.get(FireStoreUtils.currencyIdNameMap.get("Dash")).intValue()));
+                }
+                if (purchased_currencies.containsKey(FireStoreUtils.currencyIdNameMap.get("e-Sikka"))) {
+                    ((TextView) view.findViewById(R.id.sik))
+                            .setText(String.valueOf(purchased_currencies.get(FireStoreUtils.currencyIdNameMap.get("e-Sikka")).intValue()));
+                }
+                if (purchased_currencies.containsKey(FireStoreUtils.currencyIdNameMap.get("Litecoin"))) {
+                    ((TextView) view.findViewById(R.id.ltc))
+                            .setText(String.valueOf(purchased_currencies.get(FireStoreUtils.currencyIdNameMap.get("Litecoin")).intValue()));
+                }
+            }
+
+            @Override
+            public void onFailure(Object object) {
+
             }
         });
         
