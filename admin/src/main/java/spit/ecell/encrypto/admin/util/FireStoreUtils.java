@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import spit.ecell.encrypto.admin.Constants;
+
 /**
  * Created by tejas on 16/3/18.
  */
@@ -179,8 +181,56 @@ public class FireStoreUtils {
                                 }
                             });
                         }
+                        Log.d("valuation", "Updating total valuation");
+                        updateTotalValuation(newPricesMap);
                     }
                 });
     }
+
+    public static void updateTotalValuation(final HashMap<String, Double> updatedCurrencyValueMap) {
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        final CollectionReference ref = db.collection(Constants.FS_USERS_KEY);
+        ref.get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        for (final DocumentSnapshot doc : task.getResult()) {
+                            db.runTransaction(new Transaction.Function<Void>() {
+                                @Nullable
+                                @Override
+                                public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                                    DocumentSnapshot snapshot = transaction.get(ref.document(doc.getId()));
+                                    Double wallet_balance;
+                                    try {
+                                        wallet_balance = Double.parseDouble(snapshot.get(Constants.FS_USER_BALANCE_KEY).toString());
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        wallet_balance = ((Long) snapshot.get(Constants.FS_USER_BALANCE_KEY)).doubleValue();
+                                    }
+                                    HashMap<String, Object> purchased_curr =
+                                            (HashMap<String, Object>) snapshot.get(Constants.FS_PURCHASED_CURRENCIES_KEY);
+
+                                    if (purchased_curr == null) {
+                                        Log.d("valuation", "Purchased currencies is null when updating valuation");
+                                        return null;
+                                    }
+
+                                    Double totalValuation = wallet_balance;
+                                    for (String currencyId : purchased_curr.keySet()) {
+                                        totalValuation +=
+                                                (updatedCurrencyValueMap.get(currencyId) * (Double) purchased_curr.get(currencyId));
+                                    }
+                                    Log.d(TAG, "Total valuation: " + totalValuation);
+                                    transaction.update(ref.document(doc.getId()), Constants.FS_TOTAL_VALUATION, totalValuation);
+                                    return null;
+                                }
+                            });
+                        }
+                    }
+                });
+
+    }
+
 
 }
