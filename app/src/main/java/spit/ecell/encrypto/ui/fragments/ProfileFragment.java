@@ -34,7 +34,7 @@ public class ProfileFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         userPrefs = view.getContext().getSharedPreferences(Constants.PREFS, Context.MODE_PRIVATE);
-        final DecimalFormat formatter = new DecimalFormat(".00");
+        final DecimalFormat formatter = new DecimalFormat("0.00");
 
         TextView name = view.findViewById(R.id.name);
         TextView email = view.findViewById(R.id.email);

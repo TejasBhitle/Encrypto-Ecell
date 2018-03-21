@@ -40,7 +40,7 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final Currency currency = currencies.get(position);
-        DecimalFormat formatter = new DecimalFormat(".00");
+        DecimalFormat formatter = new DecimalFormat("0.00");
         holder.symbolView.setText(currency.getSymbol());
         holder.nameView.setText(currency.getName());
         holder.valueView.setText(String.valueOf(formatter.format(currency.getCurrentValue())));

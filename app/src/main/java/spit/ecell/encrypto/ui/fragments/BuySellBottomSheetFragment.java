@@ -31,6 +31,7 @@ import spit.ecell.encrypto.util.NetworkUtils;
 
 public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
 
+    private static final String TAG = "BuySellSheet";
     private boolean isBuySheet;
     private Double balance = null;
     private ListenerRegistration balanceListener;
@@ -41,8 +42,6 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
     private AppCompatSeekBar seekBar;
     private ProgressBar progressBar;
     private LinearLayout sheetLayout;
-
-    private static final String TAG = "BuySellSheet";
 
     public BuySellBottomSheetFragment() {
     }
@@ -96,7 +95,7 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
     }
 
     public void updateUI(final Currency currency, int ownedCurrencyQuantity) {
-        final DecimalFormat formatter = new DecimalFormat(".00#");
+        final DecimalFormat formatter = new DecimalFormat("0.00#");
 
         this.currency = currency;
         this.ownedCurrencyQuantity = ownedCurrencyQuantity;

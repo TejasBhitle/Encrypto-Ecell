@@ -40,7 +40,7 @@ public class CurrencyDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_currency_detail);
 
-        formatter = new DecimalFormat(".00#");
+        formatter = new DecimalFormat("0.00#");
 
         descriptionView = findViewById(R.id.description);
         symbol = findViewById(R.id.symbol);
