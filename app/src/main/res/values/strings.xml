@@ -32,6 +32,7 @@
     <string name="username">Username</string>
     <string name="please_wait">Please wait…</string>
     <string name="balance">Balance</string>
+    <string name="balance_placeholder">Balance: $ %1$s</string>
     <string name="buy">Buy</string>
     <string name="buy_currency_placeholder">Buy %1$s</string>
     <string name="sell">Sell</string>
@@ -59,4 +60,6 @@
     <string name="confirm_purchase">Confirm purchase</string>
     <string name="total">Total</string>
     <string name="confirm_sale">Confirm sale</string>
+    <string name="net_worth">Net worth</string>
+    <string name="net_worth_placeholder">Net worth: $ %1$s</string>
 </resources>

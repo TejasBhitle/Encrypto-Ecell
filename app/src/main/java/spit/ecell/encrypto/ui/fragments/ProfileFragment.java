@@ -21,8 +21,8 @@ import spit.ecell.encrypto.util.FireStoreUtils;
 
 public class ProfileFragment extends Fragment {
     SharedPreferences userPrefs;
-    private Double balance;
-    private ListenerRegistration balanceListener;
+    private Double balance, valuation;
+    private ListenerRegistration balanceListener, valuationListener;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -39,6 +39,7 @@ public class ProfileFragment extends Fragment {
         TextView name = view.findViewById(R.id.name);
         TextView email = view.findViewById(R.id.email);
         final TextView balanceTextView = view.findViewById(R.id.balance);
+        final TextView netWorthTextView = view.findViewById(R.id.worth);
 
         String full_name = userPrefs.getString(Constants.USER_NAME, getString(R.string.username)).trim();
         name.setText(full_name);
@@ -48,7 +49,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onSuccess(Object object) {
                 balance = (Double) object;
-                balanceTextView.setText(getString(R.string.balance) + ": " + formatter.format(balance));
+                balanceTextView.setText(getString(R.string.balance_placeholder, formatter.format(balance)));
             }
 
             @Override
@@ -56,6 +57,18 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        valuationListener = FireStoreUtils.getTotalValuation(new FireStoreUtils.FireStoreUtilCallbacks() {
+            @Override
+            public void onSuccess(Object object) {
+                valuation = (Double) object;
+                netWorthTextView.setText(getString(R.string.net_worth_placeholder, formatter.format(valuation)));
+            }
+
+            @Override
+            public void onFailure(Object object) {
+            }
+        });
+        
         return view;
     }
 
@@ -64,5 +77,7 @@ public class ProfileFragment extends Fragment {
         super.onDestroy();
         if (balanceListener != null)
             balanceListener.remove();
+        if (valuationListener != null)
+            valuationListener.remove();
     }
 }

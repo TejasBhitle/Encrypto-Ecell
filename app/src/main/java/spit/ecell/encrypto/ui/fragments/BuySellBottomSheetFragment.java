@@ -104,7 +104,7 @@ public class BuySellBottomSheetFragment extends BottomSheetDialogFragment {
         Log.e(TAG,"updateUI called");
         if (!isVisible()) {
             Log.e(TAG,"its inVisible called");
-            return;
+            //return;
         }
 
         if (balance == null) return;
