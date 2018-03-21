@@ -226,12 +226,12 @@ public class FireStoreUtils {
         });
     }
 
-    public static void buySellCurrency(final Currency currency, double qty, boolean isBuy) {
+    public static void buySellCurrency(final Currency currency, long qty, boolean isBuy) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
         String userId = user.getUid();
 
-        final double quantity = (isBuy) ? qty : -qty;
+        final long quantity = (isBuy) ? qty : -qty;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -264,12 +264,7 @@ public class FireStoreUtils {
                     purchased_currencies = new HashMap<>();
                     purchased_currencies.put(currency.getId(), quantity);
                 } else {
-                    Double newQuantity;
-                    try {
-                        newQuantity = (Double) (purchased_currencies.get(currency.getId()));
-                    } catch (Exception e) {
-                        newQuantity = ((Long) (purchased_currencies.get(currency.getId()))).doubleValue();
-                    }
+                    Long newQuantity = (Long) (purchased_currencies.get(currency.getId()));
                     if (newQuantity == null) {
                         purchased_currencies.put(currency.getId(), quantity);
                     } else {
@@ -304,7 +299,7 @@ public class FireStoreUtils {
 
     }
 
-    private static void createTransaction(String currency_name, Double quantity, Double value, boolean isBought) {
+    private static void createTransaction(String currency_name, Long quantity, Double value, boolean isBought) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
 
