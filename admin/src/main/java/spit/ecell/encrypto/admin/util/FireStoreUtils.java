@@ -219,7 +219,7 @@ public class FireStoreUtils {
                                     Double totalValuation = wallet_balance;
                                     for (String currencyId : purchased_curr.keySet()) {
                                         totalValuation +=
-                                                (updatedCurrencyValueMap.get(currencyId) * (Double) purchased_curr.get(currencyId));
+                                                (updatedCurrencyValueMap.get(currencyId) * (Long) purchased_curr.get(currencyId));
                                     }
                                     Log.d(TAG, "Total valuation: " + totalValuation);
                                     transaction.update(ref.document(doc.getId()), Constants.FS_TOTAL_VALUATION, totalValuation);

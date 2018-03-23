@@ -226,14 +226,14 @@ public class FireStoreUtils {
         });
     }
 
-    public static void buySellCurrency(final Currency currency, long qty, boolean isBuy) {
+    public static void buySellCurrency(final Currency currency, long qty, final boolean isBuy) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
         String userId = user.getUid();
 
-        final long quantity = (isBuy) ? qty : -qty;
+        final long[] quantity = {(isBuy) ? qty : -qty};
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         /*change balance*/
         final DocumentReference userRef = db.collection(Constants.FS_USERS_KEY)
@@ -244,58 +244,70 @@ public class FireStoreUtils {
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 DocumentSnapshot snapshot = transaction.get(userRef);
                 double balance = snapshot.getDouble(Constants.FS_USER_BALANCE_KEY);
-                balance -= quantity * currency.getCurrentValue();
-                transaction.update(userRef, Constants.FS_USER_BALANCE_KEY, balance);
-                return null;
-            }
-        });
-
-
-        /*purchase currency*/
-        db.runTransaction(new Transaction.Function<Void>() {
-            @Nullable
-            @Override
-            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                DocumentSnapshot snapshot = transaction.get(userRef);
-                HashMap<String, Object> purchased_currencies =
-                        (HashMap<String, Object>) snapshot.get(Constants.FS_PURCHASED_CURRENCIES_KEY);
-
-                if (purchased_currencies == null) {
-                    purchased_currencies = new HashMap<>();
-                    purchased_currencies.put(currency.getId(), quantity);
-                } else {
-                    Long newQuantity = (Long) (purchased_currencies.get(currency.getId()));
-                    if (newQuantity == null) {
-                        purchased_currencies.put(currency.getId(), quantity);
-                    } else {
-                        newQuantity += quantity;
-                        purchased_currencies.put(currency.getId(), newQuantity);
-                    }
+                balance -= quantity[0] * currency.getCurrentValue();
+                if (balance >= 0)
+                    transaction.update(userRef, Constants.FS_USER_BALANCE_KEY, balance);
+                else {
+                    quantity[0] = 0;
                 }
-                transaction.update(userRef, Constants.FS_PURCHASED_CURRENCIES_KEY, purchased_currencies);
                 return null;
             }
-        });
+        })
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (quantity[0] != 0) {
 
-        /*update currency change-this-round values*/
-        final DocumentReference currencyRef =
-                db.collection(Constants.FS_CURRENCIES_KEY)
-                        .document(currency.getId());
-        db.runTransaction(new Transaction.Function<Void>() {
-            @Nullable
-            @Override
-            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                    /*purchase currency*/
+                            db.runTransaction(new Transaction.Function<Void>() {
+                                @Nullable
+                                @Override
+                                public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                                    DocumentSnapshot snapshot = transaction.get(userRef);
+                                    HashMap<String, Object> purchased_currencies =
+                                            (HashMap<String, Object>) snapshot.get(Constants.FS_PURCHASED_CURRENCIES_KEY);
 
-                DocumentSnapshot snapshot = transaction.get(currencyRef);
-                long changed = snapshot.getLong("change-this-round");
-                changed += quantity;
-                transaction.update(currencyRef, "change-this-round", changed);
-                return null;
-            }
-        });
+                                    if (purchased_currencies == null) {
+                                        purchased_currencies = new HashMap<>();
+                                        purchased_currencies.put(currency.getId(), quantity[0]);
+                                    } else {
+                                        Long newQuantity = (Long) (purchased_currencies.get(currency.getId()));
+                                        if (newQuantity == null) {
+                                            purchased_currencies.put(currency.getId(), quantity[0]);
+                                        } else {
+                                            newQuantity += quantity[0];
+                                            purchased_currencies.put(currency.getId(), newQuantity);
+                                        }
+                                    }
+                                    transaction.update(userRef, Constants.FS_PURCHASED_CURRENCIES_KEY, purchased_currencies);
+                                    return null;
+                                }
+                            });
 
-        /*update transaction node*/
-        createTransaction(currency.getName(), quantity, currency.getCurrentValue(), isBuy);
+                    /*update currency change-this-round values*/
+                            final DocumentReference currencyRef =
+                                    db.collection(Constants.FS_CURRENCIES_KEY)
+                                            .document(currency.getId());
+                            db.runTransaction(new Transaction.Function<Void>() {
+                                @Nullable
+                                @Override
+                                public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+
+                                    DocumentSnapshot snapshot = transaction.get(currencyRef);
+                                    long changed = snapshot.getLong("change-this-round");
+                                    changed += quantity[0];
+                                    transaction.update(currencyRef, "change-this-round", changed);
+                                    return null;
+                                }
+                            });
+
+                    /*update transaction node*/
+                            createTransaction(currency.getName(), quantity[0], currency.getCurrentValue(), isBuy);
+
+                        }
+
+                    }
+                });
 
     }
 
@@ -416,7 +428,7 @@ public class FireStoreUtils {
                     HashMap<String, Object> map = (HashMap<String, Object>) snapshot.getData();
                     HashMap<String, Object> purchased_currencies =
                             (HashMap<String, Object>) map.get(Constants.FS_PURCHASED_CURRENCIES_KEY);
-                    if (purchased_currencies.containsKey(currencyId)) {
+                    if (purchased_currencies != null && purchased_currencies.containsKey(currencyId)) {
                         try {
                             owned = (int) Double.parseDouble(purchased_currencies.get(currencyId).toString());
 
